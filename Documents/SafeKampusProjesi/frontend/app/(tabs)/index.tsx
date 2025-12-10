@@ -8,7 +8,7 @@ export default function App() {
   const [errorDetails, setErrorDetails] = useState<string>('');
 
   // 10.117.23.213 senin IP adresindi, burası doğru.
-  const API_URL = 'http://10.117.23.213:8000';
+  const API_URL = 'http://192.168.18.39:8000';
 
   const testConnection = async () => {
     setLoading(true);
