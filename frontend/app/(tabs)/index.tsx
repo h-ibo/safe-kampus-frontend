@@ -1,92 +1,230 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native'; // React Native bileşenlerini import et
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Animated, Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
-export default function TabOneScreen() { // Dosya adına göre fonksiyon adını değiştirebilirsin
-  // 1. State Değişkenleri (React Web ile aynı)
-  const [apiVerisi, setApiVerisi] = useState(null);
-  const [yukleniyor, setYukleniyor] = useState(true);
-  const [hata, setHata] = useState(null);
+const { width } = Dimensions.get('window');
 
-  // 2. useEffect ile API Çağrısı (React Web ile aynı mantık)
+const OLAY_TURLERI = [
+  { id: 'yangin', label: 'Yangın', icon: '🔥', renk: '#e53e3e' },
+  { id: 'kavga', label: 'Kavga', icon: '⚠️', renk: '#d69e2e' },
+  { id: 'hirsizlik', label: 'Hırsızlık', icon: '🚨', renk: '#805ad5' },
+  { id: 'saglik', label: 'Sağlık', icon: '🏥', renk: '#38a169' },
+  { id: 'sarbest', label: 'Şüpheli', icon: '👁', renk: '#3182ce' },
+  { id: 'diger', label: 'Diğer', icon: '📋', renk: '#718096' },
+];
+
+export default function AnaSayfa() {
+  const [secilenTur, setSecilenTur] = useState('');
+  const [konum, setKonum] = useState('');
+  const [aciklama, setAciklama] = useState('');
+  const [yukleniyor, setYukleniyor] = useState(false);
+  const [basarili, setBasarili] = useState(false);
+  const [kullanici, setKullanici] = useState('');
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const successAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
-    // Backend API'mızın URL'si (Bilgisayarının IP'si yerine localhost kullanıyoruz çünkü web modundayız)
-    const backendUrl = 'http://127.0.0.1:8000/';
+    Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: false }).start();
+    AsyncStorage.getItem('user_isim').then(i => i && setKullanici(i));
+  }, []);
 
-    fetch(backendUrl)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP hatası! Durum: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        setApiVerisi(data);
-        setYukleniyor(false);
-      })
-      .catch(error => {
-        console.error("API çağrısı sırasında hata oluştu:", error);
-        setHata(`Veri alınamadı: ${error.message}`);
-        setYukleniyor(false);
+  const handleCikis = async () => {
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('user_email');
+    router.replace('/(auth)/login');
+  };
+
+  const handleGonder = async () => {
+    if (!secilenTur) { alert('Lütfen olay türü seçin.'); return; }
+    if (!konum) { alert('Lütfen konum girin.'); return; }
+    setYukleniyor(true);
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await fetch('http://127.0.0.1:8000/olaylar/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ olay_turu: secilenTur, konum, aciklama }),
       });
+      if (!response.ok) throw new Error('Gönderim başarısız.');
+      setBasarili(true);
+      Animated.spring(successAnim, { toValue: 1, tension: 60, friction: 8, useNativeDriver: false }).start();
+      setTimeout(() => {
+        setBasarili(false);
+        successAnim.setValue(0);
+        setSecilenTur('');
+        setKonum('');
+        setAciklama('');
+      }, 3000);
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setYukleniyor(false);
+    }
+  };
 
-  }, []); // Sadece ilk render'da çalıştır
-
-  // 3. Veriyi Ekranda Gösterme (React Native bileşenleri ile)
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Backend API Testi:</Text>
-
-      {/* Yükleniyor durumu */}
-      {yukleniyor && <Text>Veri yükleniyor...</Text>}
-
-      {/* Hata durumu */}
-      {hata && <Text style={styles.errorText}>Hata: {hata}</Text>}
-
-      {/* Başarılı veri durumu */}
-      {apiVerisi && (
-        <View style={styles.dataContainer}>
-          <Text>Backend'den Gelen Yanıt:</Text>
-          {/* JSON verisini string'e çevirip gösterelim */}
-          <Text style={styles.jsonText}>{JSON.stringify(apiVerisi, null, 2)}</Text>
-          {/* Direkt veriye erişim */}
-          {/* TypeScript kullanıyorsak apiVerisi.data hata verebilir, şimdilik any varsayıyoruz */}
-          <Text>Veri Alanı: {(apiVerisi as any)?.data}</Text>
+    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.headerGreet}>Merhaba 👋</Text>
+          <Text style={styles.headerEmail}>{kullanici}</Text>
         </View>
-      )}
-    </View>
+        <TouchableOpacity style={styles.cikisBtn} onPress={handleCikis}>
+          <Text style={styles.cikisBtnText}>Çıkış</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+
+        {/* Acil buton */}
+        <TouchableOpacity style={styles.acilBtn} activeOpacity={0.85}>
+          <Text style={styles.acilBtnIcon}>🆘</Text>
+          <View>
+            <Text style={styles.acilBtnTitle}>ACİL YARDIM</Text>
+            <Text style={styles.acilBtnSub}>Güvenlik birimine anında bağlan</Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* Olay bildir kartı */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Olay Bildir</Text>
+          <Text style={styles.cardSub}>Kampüste gördüğünüz bir olayı bildirin</Text>
+
+          {/* Olay türü seçimi */}
+          <Text style={styles.label}>OLAY TÜRÜ</Text>
+          <View style={styles.turGrid}>
+            {OLAY_TURLERI.map((tur) => (
+              <TouchableOpacity
+                key={tur.id}
+                style={[
+                  styles.turKart,
+                  secilenTur === tur.id && { borderColor: tur.renk, backgroundColor: tur.renk + '22' }
+                ]}
+                onPress={() => setSecilenTur(tur.id)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.turIcon}>{tur.icon}</Text>
+                <Text style={[styles.turLabel, secilenTur === tur.id && { color: tur.renk }]}>
+                  {tur.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Konum */}
+          <Text style={styles.label}>KONUM</Text>
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputIcon}>📍</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Bina adı, kat, oda no..."
+              placeholderTextColor="#4a5568"
+              value={konum}
+              onChangeText={setKonum}
+            />
+          </View>
+
+          {/* Açıklama */}
+          <Text style={styles.label}>AÇIKLAMA</Text>
+          <View style={[styles.inputWrapper, styles.textareaWrapper]}>
+            <TextInput
+              style={[styles.input, styles.textarea]}
+              placeholder="Olayı kısaca açıklayın..."
+              placeholderTextColor="#4a5568"
+              value={aciklama}
+              onChangeText={setAciklama}
+              multiline
+              numberOfLines={4}
+            />
+          </View>
+
+          {/* Gönder butonu */}
+          <TouchableOpacity
+            style={[styles.gonderBtn, yukleniyor && styles.gonderBtnDisabled]}
+            onPress={handleGonder}
+            disabled={yukleniyor}
+            activeOpacity={0.85}
+          >
+            {yukleniyor
+              ? <ActivityIndicator color="#fff" />
+              : <Text style={styles.gonderBtnText}>BİLDİR →</Text>
+            }
+          </TouchableOpacity>
+        </View>
+
+        {/* Başarı mesajı */}
+        {basarili && (
+          <Animated.View style={[styles.successBox, { transform: [{ scale: successAnim }] }]}>
+            <Text style={styles.successIcon}>✅</Text>
+            <Text style={styles.successText}>Olayınız güvenlik birimine iletildi!</Text>
+          </Animated.View>
+        )}
+
+        {/* Son olaylar */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Kampüs Durumu</Text>
+          <View style={styles.statusRow}>
+            <View style={[styles.statusDot, { backgroundColor: '#38a169' }]} />
+            <Text style={styles.statusText}>Güvenlik birimleri aktif</Text>
+          </View>
+          <View style={styles.statusRow}>
+            <View style={[styles.statusDot, { backgroundColor: '#3182ce' }]} />
+            <Text style={styles.statusText}>Sistem normal çalışıyor</Text>
+          </View>
+        </View>
+
+      </ScrollView>
+    </Animated.View>
   );
 }
 
-// --- Basit Stil Tanımlamaları ---
-// React Native'de stil için CSS yerine JavaScript objeleri kullanılır
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  dataContainer: {
-    marginTop: 15,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    width: '100%',
-  },
-  jsonText: {
-    fontFamily: 'monospace', // JSON'u daha okunaklı göstermek için
-    marginTop: 5,
-    marginBottom: 10,
-    backgroundColor: '#f5f5f5',
-    padding: 5,
-  },
-  errorText: {
-    color: 'red',
-    marginTop: 15,
-  },
+  container: { flex: 1, backgroundColor: '#070b14' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 60, paddingBottom: 16, backgroundColor: '#0d1526', borderBottomWidth: 1, borderBottomColor: '#1e2d4a' },
+  headerGreet: { color: '#4a5568', fontSize: 13 },
+  headerEmail: { color: '#e2e8f0', fontSize: 15, fontWeight: '700' },
+  cikisBtn: { backgroundColor: '#1e2d4a', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7 },
+  cikisBtnText: { color: '#4a7ab5', fontSize: 13, fontWeight: '600' },
+  scroll: { padding: 16, paddingBottom: 40 },
+  acilBtn: { backgroundColor: '#7b0000', borderRadius: 16, padding: 20, flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16, borderWidth: 1, borderColor: '#e53e3e' },
+  acilBtnIcon: { fontSize: 36 },
+  acilBtnTitle: { color: '#fff', fontSize: 18, fontWeight: '900', letterSpacing: 1 },
+  acilBtnSub: { color: '#fc8181', fontSize: 12, marginTop: 2 },
+  card: { backgroundColor: '#0d1526', borderRadius: 20, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: '#1e2d4a' },
+  cardTitle: { color: '#fff', fontSize: 18, fontWeight: '800', marginBottom: 4 },
+  cardSub: { color: '#4a5568', fontSize: 13, marginBottom: 20 },
+  label: { color: '#4a7ab5', fontSize: 11, fontWeight: '700', letterSpacing: 1.5, marginBottom: 10 },
+  turGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
+  turKart: { width: (width - 32 - 40 - 20) / 3, backgroundColor: '#111827', borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 1.5, borderColor: '#1e2d4a' },
+  turIcon: { fontSize: 24, marginBottom: 6 },
+  turLabel: { color: '#718096', fontSize: 12, fontWeight: '600' },
+  inputWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#111827', borderRadius: 12, borderWidth: 1, borderColor: '#1e2d4a', paddingHorizontal: 14, marginBottom: 16 },
+  textareaWrapper: { alignItems: 'flex-start', paddingTop: 12 },
+  inputIcon: { fontSize: 16, marginRight: 10 },
+  input: { flex: 1, color: '#e2e8f0', fontSize: 15, paddingVertical: 14 },
+  textarea: { height: 100, textAlignVertical: 'top' },
+  gonderBtn: { backgroundColor: '#1a56db', borderRadius: 12, paddingVertical: 16, alignItems: 'center' },
+  gonderBtnDisabled: { opacity: 0.6 },
+  gonderBtnText: { color: '#fff', fontSize: 15, fontWeight: '800', letterSpacing: 2 },
+  successBox: { backgroundColor: '#0a1f0a', borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: '#276749', flexDirection: 'row', gap: 12 },
+  successIcon: { fontSize: 28 },
+  successText: { color: '#68d391', fontSize: 14, fontWeight: '600', flex: 1 },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  statusText: { color: '#718096', fontSize: 13 },
 });
