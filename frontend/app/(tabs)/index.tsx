@@ -10,7 +10,7 @@ export default function TabOneScreen() { // Dosya adına göre fonksiyon adını
   // 2. useEffect ile API Çağrısı (React Web ile aynı mantık)
   useEffect(() => {
     // Backend API'mızın URL'si (Bilgisayarının IP'si yerine localhost kullanıyoruz çünkü web modundayız)
-    const backendUrl = 'http://127.0.0.1:8000/api/test';
+    const backendUrl = 'http://127.0.0.1:8000/';
 
     fetch(backendUrl)
       .then(response => {
