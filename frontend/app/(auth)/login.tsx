@@ -52,7 +52,12 @@ export default function LoginScreen() {
       if (!response.ok) throw new Error(data.detail || 'Giriş başarısız.');
       await AsyncStorage.setItem('token', data.access_token);
       await AsyncStorage.setItem('user_isim', data.isim);
-      router.replace('/(tabs)');
+      await AsyncStorage.setItem('user_rol', data.rol);
+      if (data.rol === 'admin' || data.rol === 'guvenlik') {
+          router.replace('/(admin)');
+          } else {
+           router.replace('/(tabs)');
+        }
     } catch (e: any) {
       setHata(e.message);
     } finally {
