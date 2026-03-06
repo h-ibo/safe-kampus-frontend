@@ -123,6 +123,12 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
           </View>
+          <TouchableOpacity
+            style={styles.forgotButton}
+            onPress={() => router.push('/(auth)/sifremi-unuttum')}
+          >
+            <Text style={styles.forgotButtonText}>Şifremi Unuttum</Text>
+          </TouchableOpacity>
 
           {hata ? (
             <View style={styles.errorBox}>
@@ -148,6 +154,7 @@ export default function LoginScreen() {
             <Text style={styles.dividerText}>veya</Text>
             <View style={styles.dividerLine} />
           </View>
+          
 
           <TouchableOpacity
             style={styles.registerButton}
@@ -197,4 +204,6 @@ const styles = StyleSheet.create({
   registerButton: { borderRadius: 12, paddingVertical: 14, alignItems: 'center', borderWidth: 1, borderColor: '#1e2d4a' },
   registerButtonText: { color: '#4a7ab5', fontSize: 15, fontWeight: '600' },
   footer: { color: '#2d3748', fontSize: 11, textAlign: 'center', marginTop: 24, letterSpacing: 0.5 },
+  forgotButton: { alignItems: 'flex-end', marginBottom: 16 },
+  forgotButtonText: { color: '#4a7ab5', fontSize: 13 },
 });
