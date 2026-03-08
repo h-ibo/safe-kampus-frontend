@@ -45,13 +45,38 @@ export default function AnaSayfa() {
     router.replace('/(auth)/login');
   };
 
+  const handleAcil = async () => {
+  setYukleniyor(true);
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await fetch('http://10.53.169.133:8000/olaylar/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ 
+        olay_turu: 'ACİL YARDIM', 
+        konum: 'Konum belirsiz', 
+        aciklama: 'ACİL YARDIM talebi! Kullanıcı yardım istiyor.' 
+      }),
+    });
+    if (!response.ok) throw new Error('Gönderim başarısız.');
+    alert('🆘 ACİL YARDIM talebi güvenlik birimine iletildi!');
+  } catch (e: any) {
+    alert(e.message);
+  } finally {
+    setYukleniyor(false);
+  }
+};
+
   const handleGonder = async () => {
     if (!secilenTur) { alert('Lütfen olay türü seçin.'); return; }
     if (!konum) { alert('Lütfen konum girin.'); return; }
     setYukleniyor(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await fetch('http://127.0.0.1:8000/olaylar/', {
+      const response = await fetch('http://10.53.169.133:8000/olaylar/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +117,7 @@ export default function AnaSayfa() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
 
         {/* Acil buton */}
-        <TouchableOpacity style={styles.acilBtn} activeOpacity={0.85}>
+        <TouchableOpacity style={styles.acilBtn} activeOpacity={0.85} onPress={handleAcil}>
           <Text style={styles.acilBtnIcon}>🆘</Text>
           <View>
             <Text style={styles.acilBtnTitle}>ACİL YARDIM</Text>
