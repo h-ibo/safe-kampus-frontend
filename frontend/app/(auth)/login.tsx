@@ -53,6 +53,7 @@ export default function LoginScreen() {
     await AsyncStorage.setItem('token', data.access_token);
     await AsyncStorage.setItem('user_isim', data.isim);
     await AsyncStorage.setItem('user_rol', data.rol);
+    await AsyncStorage.setItem('user_email', email);
     if (data.rol === 'admin' || data.rol === 'guvenlik') {
       router.replace('/(admin)');
     } else {
