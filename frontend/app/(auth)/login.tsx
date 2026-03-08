@@ -36,34 +36,34 @@ export default function LoginScreen() {
   }, []);
 
   const handleLogin = async () => {
-    if (!email || !sifre) {
-      setHata('Lütfen tüm alanları doldurun.');
-      return;
+  if (!email || !sifre) {
+    setHata('Lütfen tüm alanları doldurun.');
+    return;
+  }
+  setHata('');
+  setYukleniyor(true);
+  try {
+    const response = await fetch('http://10.53.169.133:8000/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, sifre }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Giriş başarısız.');
+    await AsyncStorage.setItem('token', data.access_token);
+    await AsyncStorage.setItem('user_isim', data.isim);
+    await AsyncStorage.setItem('user_rol', data.rol);
+    if (data.rol === 'admin' || data.rol === 'guvenlik') {
+      router.replace('/(admin)');
+    } else {
+      router.replace('/(tabs)');
     }
-    setHata('');
-    setYukleniyor(true);
-    try {
-      const response = await fetch('http://127.0.0.1:8000/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, sifre }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || 'Giriş başarısız.');
-      await AsyncStorage.setItem('token', data.access_token);
-      await AsyncStorage.setItem('user_isim', data.isim);
-      await AsyncStorage.setItem('user_rol', data.rol);
-      if (data.rol === 'admin' || data.rol === 'guvenlik') {
-          router.replace('/(admin)');
-          } else {
-           router.replace('/(tabs)');
-        }
-    } catch (e: any) {
-      setHata(e.message);
-    } finally {
-      setYukleniyor(false);
-    }
-  };
+  } catch (e: any) {
+    setHata(e.message);
+  } finally {
+    setYukleniyor(false);
+  }
+};
 
   return (
     <KeyboardAvoidingView

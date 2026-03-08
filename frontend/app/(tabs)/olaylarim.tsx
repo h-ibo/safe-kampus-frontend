@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const DURUM_RENK: any = {
   beklemede: { bg: '#1f1a00', border: '#d69e2e', text: '#f6e05e' },
@@ -15,7 +15,7 @@ export default function OlaylarimScreen() {
   const fetchOlaylar = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await fetch('http://127.0.0.1:8000/olaylar/', {
+      const response = await fetch('http://10.53.169.133:8000/olaylar/', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
