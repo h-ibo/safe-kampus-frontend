@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiFetch } from '@/constants/api';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -13,11 +13,9 @@ export default function OlaylarimScreen() {
   const [yukleniyor, setYukleniyor] = useState(true);
 
   const fetchOlaylar = async () => {
+    setYukleniyor(true);
     try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await fetch('http://10.53.169.133:8000/olaylar/', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiFetch('/olaylar/');
       const data = await response.json();
       setOlaylar(data);
     } catch (e) {

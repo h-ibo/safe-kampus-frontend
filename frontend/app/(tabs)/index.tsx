@@ -1,3 +1,4 @@
+import { apiFetch } from '@/constants/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -46,42 +47,32 @@ export default function AnaSayfa() {
   };
 
   const handleAcil = async () => {
-  setYukleniyor(true);
-  try {
-    const token = await AsyncStorage.getItem('token');
-    const response = await fetch('http://10.53.169.133:8000/olaylar/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ 
-        olay_turu: 'ACİL YARDIM', 
-        konum: 'Konum belirsiz', 
-        aciklama: 'ACİL YARDIM talebi! Kullanıcı yardım istiyor.' 
-      }),
-    });
-    if (!response.ok) throw new Error('Gönderim başarısız.');
-    alert('🆘 ACİL YARDIM talebi güvenlik birimine iletildi!');
-  } catch (e: any) {
-    alert(e.message);
-  } finally {
-    setYukleniyor(false);
-  }
-};
+    setYukleniyor(true);
+    try {
+      const response = await apiFetch('/olaylar/', {
+        method: 'POST',
+        body: JSON.stringify({
+          olay_turu: 'ACİL YARDIM',
+          konum: 'Konum belirsiz',
+          aciklama: 'ACİL YARDIM talebi! Kullanıcı yardım istiyor.'
+        }),
+      });
+      if (!response.ok) throw new Error('Gönderim başarısız.');
+      alert('🆘 ACİL YARDIM talebi güvenlik birimine iletildi!');
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setYukleniyor(false);
+    }
+  };
 
   const handleGonder = async () => {
     if (!secilenTur) { alert('Lütfen olay türü seçin.'); return; }
     if (!konum) { alert('Lütfen konum girin.'); return; }
     setYukleniyor(true);
     try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await fetch('http://10.53.169.133:8000/olaylar/', {
+      const response = await apiFetch('/olaylar/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
         body: JSON.stringify({ olay_turu: secilenTur, konum, aciklama }),
       });
       if (!response.ok) throw new Error('Gönderim başarısız.');
@@ -103,7 +94,6 @@ export default function AnaSayfa() {
 
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-      {/* Header */}
       <View style={styles.header}>
         <View>
           <Text style={styles.headerGreet}>Merhaba 👋</Text>
@@ -115,8 +105,6 @@ export default function AnaSayfa() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-
-        {/* Acil buton */}
         <TouchableOpacity style={styles.acilBtn} activeOpacity={0.85} onPress={handleAcil}>
           <Text style={styles.acilBtnIcon}>🆘</Text>
           <View>
@@ -125,33 +113,24 @@ export default function AnaSayfa() {
           </View>
         </TouchableOpacity>
 
-        {/* Olay bildir kartı */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Olay Bildir</Text>
           <Text style={styles.cardSub}>Kampüste gördüğünüz bir olayı bildirin</Text>
-
-          {/* Olay türü seçimi */}
           <Text style={styles.label}>OLAY TÜRÜ</Text>
           <View style={styles.turGrid}>
             {OLAY_TURLERI.map((tur) => (
               <TouchableOpacity
                 key={tur.id}
-                style={[
-                  styles.turKart,
-                  secilenTur === tur.id && { borderColor: tur.renk, backgroundColor: tur.renk + '22' }
-                ]}
+                style={[styles.turKart, secilenTur === tur.id && { borderColor: tur.renk, backgroundColor: tur.renk + '22' }]}
                 onPress={() => setSecilenTur(tur.id)}
                 activeOpacity={0.7}
               >
                 <Text style={styles.turIcon}>{tur.icon}</Text>
-                <Text style={[styles.turLabel, secilenTur === tur.id && { color: tur.renk }]}>
-                  {tur.label}
-                </Text>
+                <Text style={[styles.turLabel, secilenTur === tur.id && { color: tur.renk }]}>{tur.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          {/* Konum */}
           <Text style={styles.label}>KONUM</Text>
           <View style={styles.inputWrapper}>
             <Text style={styles.inputIcon}>📍</Text>
@@ -164,7 +143,6 @@ export default function AnaSayfa() {
             />
           </View>
 
-          {/* Açıklama */}
           <Text style={styles.label}>AÇIKLAMA</Text>
           <View style={[styles.inputWrapper, styles.textareaWrapper]}>
             <TextInput
@@ -178,21 +156,16 @@ export default function AnaSayfa() {
             />
           </View>
 
-          {/* Gönder butonu */}
           <TouchableOpacity
             style={[styles.gonderBtn, yukleniyor && styles.gonderBtnDisabled]}
             onPress={handleGonder}
             disabled={yukleniyor}
             activeOpacity={0.85}
           >
-            {yukleniyor
-              ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.gonderBtnText}>BİLDİR →</Text>
-            }
+            {yukleniyor ? <ActivityIndicator color="#fff" /> : <Text style={styles.gonderBtnText}>BİLDİR →</Text>}
           </TouchableOpacity>
         </View>
 
-        {/* Başarı mesajı */}
         {basarili && (
           <Animated.View style={[styles.successBox, { transform: [{ scale: successAnim }] }]}>
             <Text style={styles.successIcon}>✅</Text>
@@ -200,7 +173,6 @@ export default function AnaSayfa() {
           </Animated.View>
         )}
 
-        {/* Son olaylar */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Kampüs Durumu</Text>
           <View style={styles.statusRow}>
@@ -212,7 +184,6 @@ export default function AnaSayfa() {
             <Text style={styles.statusText}>Sistem normal çalışıyor</Text>
           </View>
         </View>
-
       </ScrollView>
     </Animated.View>
   );
