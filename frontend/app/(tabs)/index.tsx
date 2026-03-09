@@ -31,6 +31,7 @@ export default function AnaSayfa() {
   const [yukleniyor, setYukleniyor] = useState(false);
   const [basarili, setBasarili] = useState(false);
   const [kullanici, setKullanici] = useState('');
+  const [duyurular, setDuyurular] = useState<any[]>([]);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const successAnim = useRef(new Animated.Value(0)).current;
@@ -38,7 +39,18 @@ export default function AnaSayfa() {
   useEffect(() => {
     Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: false }).start();
     AsyncStorage.getItem('user_isim').then(i => i && setKullanici(i));
+    fetchDuyurular();
   }, []);
+
+  const fetchDuyurular = async () => {
+    try {
+      const res = await apiFetch('/announcements/');
+      const data = await res.json();
+      setDuyurular(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const handleCikis = async () => {
     await AsyncStorage.removeItem('token');
@@ -113,6 +125,19 @@ export default function AnaSayfa() {
           </View>
         </TouchableOpacity>
 
+        {duyurular.length > 0 && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>📢 Duyurular</Text>
+            {duyurular.slice(0, 3).map((d: any) => (
+              <View key={d.id} style={styles.duyuruKart}>
+                <Text style={styles.duyuruBaslik}>{d.baslik}</Text>
+                <Text style={styles.duyuruIcerik}>{d.icerik}</Text>
+                <Text style={styles.duyuruTarih}>{new Date(d.created_at).toLocaleString('tr-TR')}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Olay Bildir</Text>
           <Text style={styles.cardSub}>Kampüste gördüğünüz bir olayı bildirin</Text>
@@ -172,18 +197,6 @@ export default function AnaSayfa() {
             <Text style={styles.successText}>Olayınız güvenlik birimine iletildi!</Text>
           </Animated.View>
         )}
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Kampüs Durumu</Text>
-          <View style={styles.statusRow}>
-            <View style={[styles.statusDot, { backgroundColor: '#38a169' }]} />
-            <Text style={styles.statusText}>Güvenlik birimleri aktif</Text>
-          </View>
-          <View style={styles.statusRow}>
-            <View style={[styles.statusDot, { backgroundColor: '#3182ce' }]} />
-            <Text style={styles.statusText}>Sistem normal çalışıyor</Text>
-          </View>
-        </View>
       </ScrollView>
     </Animated.View>
   );
@@ -202,8 +215,12 @@ const styles = StyleSheet.create({
   acilBtnTitle: { color: '#fff', fontSize: 18, fontWeight: '900', letterSpacing: 1 },
   acilBtnSub: { color: '#fc8181', fontSize: 12, marginTop: 2 },
   card: { backgroundColor: '#0d1526', borderRadius: 20, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: '#1e2d4a' },
-  cardTitle: { color: '#fff', fontSize: 18, fontWeight: '800', marginBottom: 4 },
+  cardTitle: { color: '#fff', fontSize: 18, fontWeight: '800', marginBottom: 16 },
   cardSub: { color: '#4a5568', fontSize: 13, marginBottom: 20 },
+  duyuruKart: { backgroundColor: '#111827', borderRadius: 12, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: '#1e3a5f' },
+  duyuruBaslik: { color: '#fff', fontSize: 14, fontWeight: '700', marginBottom: 6 },
+  duyuruIcerik: { color: '#718096', fontSize: 13, lineHeight: 20, marginBottom: 6 },
+  duyuruTarih: { color: '#2d3748', fontSize: 11 },
   label: { color: '#4a7ab5', fontSize: 11, fontWeight: '700', letterSpacing: 1.5, marginBottom: 10 },
   turGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
   turKart: { width: (width - 32 - 40 - 20) / 3, backgroundColor: '#111827', borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 1.5, borderColor: '#1e2d4a' },
@@ -220,7 +237,4 @@ const styles = StyleSheet.create({
   successBox: { backgroundColor: '#0a1f0a', borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: '#276749', flexDirection: 'row', gap: 12 },
   successIcon: { fontSize: 28 },
   successText: { color: '#68d391', fontSize: 14, fontWeight: '600', flex: 1 },
-  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
-  statusText: { color: '#718096', fontSize: 13 },
 });
