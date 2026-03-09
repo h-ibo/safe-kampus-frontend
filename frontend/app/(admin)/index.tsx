@@ -1,12 +1,15 @@
 import { apiFetch } from '@/constants/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function AdminDashboard() {
   const [olaylar, setOlaylar] = useState<any[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
   const [isim, setIsim] = useState('');
+  const [duyuruBaslik, setDuyuruBaslik] = useState('');
+  const [duyuruIcerik, setDuyuruIcerik] = useState('');
+  const [duyuruGonderiyor, setDuyuruGonderiyor] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem('user_isim').then(i => i && setIsim(i));
@@ -22,6 +25,28 @@ export default function AdminDashboard() {
       console.error(e);
     } finally {
       setYukleniyor(false);
+    }
+  };
+
+  const handleDuyuruGonder = async () => {
+    if (!duyuruBaslik.trim() || !duyuruIcerik.trim()) {
+      Alert.alert('Hata', 'Başlık ve içerik boş olamaz.');
+      return;
+    }
+    setDuyuruGonderiyor(true);
+    try {
+      const res = await apiFetch('/announcements/', {
+        method: 'POST',
+        body: JSON.stringify({ baslik: duyuruBaslik, icerik: duyuruIcerik }),
+      });
+      if (!res.ok) throw new Error('Duyuru gönderilemedi.');
+      Alert.alert('Başarılı', 'Duyuru yayınlandı!');
+      setDuyuruBaslik('');
+      setDuyuruIcerik('');
+    } catch (e: any) {
+      Alert.alert('Hata', e.message);
+    } finally {
+      setDuyuruGonderiyor(false);
     }
   };
 
@@ -62,6 +87,38 @@ export default function AdminDashboard() {
           </View>
         </View>
 
+        {/* Duyuru Oluştur */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>📢 Duyuru Yayınla</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Duyuru başlığı..."
+            placeholderTextColor="#4a5568"
+            value={duyuruBaslik}
+            onChangeText={setDuyuruBaslik}
+          />
+          <TextInput
+            style={[styles.input, styles.textarea]}
+            placeholder="Duyuru içeriği..."
+            placeholderTextColor="#4a5568"
+            value={duyuruIcerik}
+            onChangeText={setDuyuruIcerik}
+            multiline
+            numberOfLines={4}
+          />
+          <TouchableOpacity
+            style={[styles.duyuruBtn, duyuruGonderiyor && { opacity: 0.6 }]}
+            onPress={handleDuyuruGonder}
+            disabled={duyuruGonderiyor}
+          >
+            {duyuruGonderiyor
+              ? <ActivityIndicator color="#fff" />
+              : <Text style={styles.duyuruBtnText}>YAYINLA →</Text>
+            }
+          </TouchableOpacity>
+        </View>
+
+        {/* Son olaylar */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Son Olaylar</Text>
@@ -110,11 +167,15 @@ const styles = StyleSheet.create({
   statSayi: { color: '#fff', fontSize: 32, fontWeight: '900', marginBottom: 4 },
   statLabel: { color: '#4a5568', fontSize: 12, fontWeight: '600' },
   statIcon: { fontSize: 24, marginTop: 8 },
-  section: { backgroundColor: '#0d1526', borderRadius: 20, padding: 20, borderWidth: 1, borderColor: '#1e2d4a' },
+  section: { backgroundColor: '#0d1526', borderRadius: 20, padding: 20, borderWidth: 1, borderColor: '#1e2d4a', marginBottom: 16 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  sectionTitle: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  sectionTitle: { color: '#fff', fontSize: 16, fontWeight: '800', marginBottom: 12 },
   yenile: { color: '#4a7ab5', fontSize: 13, fontWeight: '600' },
   bosText: { color: '#4a5568', textAlign: 'center', paddingVertical: 20 },
+  input: { backgroundColor: '#111827', borderRadius: 12, borderWidth: 1, borderColor: '#1e2d4a', color: '#e2e8f0', fontSize: 14, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 12 },
+  textarea: { height: 100, textAlignVertical: 'top' },
+  duyuruBtn: { backgroundColor: '#1a56db', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
+  duyuruBtnText: { color: '#fff', fontSize: 14, fontWeight: '800', letterSpacing: 1.5 },
   olayKart: { backgroundColor: '#111827', borderRadius: 12, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: '#1e2d4a' },
   olayHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   olayTuru: { color: '#fff', fontSize: 14, fontWeight: '800' },
