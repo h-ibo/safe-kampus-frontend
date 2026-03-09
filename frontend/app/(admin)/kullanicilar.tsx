@@ -1,23 +1,20 @@
+import { apiFetch } from '@/constants/api';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
 export default function AdminKullanicilar() {
   const [kullanicilar, setKullanicilar] = useState<any[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
 
   useEffect(() => {
-    const fetch_ = async () => {
+    const fetchKullanicilar = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
-        const res = await fetch('http://127.0.0.1:8000/users/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiFetch('/users/');
         setKullanicilar(await res.json());
       } catch (e) { console.error(e); }
       finally { setYukleniyor(false); }
     };
-    fetch_();
+    fetchKullanicilar();
   }, []);
 
   const renderKullanici = ({ item }: any) => (

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { apiFetch } from '@/constants/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function AdminDashboard() {
   const [olaylar, setOlaylar] = useState<any[]>([]);
@@ -14,10 +15,7 @@ export default function AdminDashboard() {
 
   const fetchOlaylar = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      const res = await fetch('http://127.0.0.1:8000/olaylar/', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/olaylar/');
       const data = await res.json();
       setOlaylar(data);
     } catch (e) {
@@ -41,8 +39,6 @@ export default function AdminDashboard() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        
-        {/* İstatistik kartları */}
         <View style={styles.statsGrid}>
           <View style={[styles.statKart, { borderColor: '#d69e2e' }]}>
             <Text style={styles.statSayi}>{beklemede}</Text>
@@ -66,7 +62,6 @@ export default function AdminDashboard() {
           </View>
         </View>
 
-        {/* Son olaylar */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Son Olaylar</Text>

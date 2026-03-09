@@ -1,6 +1,6 @@
+import { apiFetch } from '@/constants/api';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const DURUMLAR = ['beklemede', 'inceleniyor', 'cozuldu'];
 
@@ -11,10 +11,7 @@ export default function AdminOlaylar() {
   const fetchOlaylar = async () => {
     setYukleniyor(true);
     try {
-      const token = await AsyncStorage.getItem('token');
-      const res = await fetch('http://127.0.0.1:8000/olaylar/', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/olaylar/');
       setOlaylar(await res.json());
     } catch (e) { console.error(e); }
     finally { setYukleniyor(false); }
@@ -22,11 +19,7 @@ export default function AdminOlaylar() {
 
   const durumGuncelle = async (id: number, durum: string) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      await fetch(`http://127.0.0.1:8000/olaylar/${id}/durum?durum=${durum}`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiFetch(`/olaylar/${id}/durum?durum=${durum}`, { method: 'PUT' });
       fetchOlaylar();
     } catch (e) { console.error(e); }
   };
@@ -42,7 +35,6 @@ export default function AdminOlaylar() {
       <Text style={styles.konum}>📍 {item.konum}</Text>
       {item.aciklama ? <Text style={styles.aciklama}>{item.aciklama}</Text> : null}
       <Text style={styles.tarih}>{new Date(item.created_at).toLocaleString('tr-TR')}</Text>
-      
       <View style={styles.durumlar}>
         {DURUMLAR.map(d => (
           <TouchableOpacity

@@ -48,7 +48,7 @@ export default function RegisterScreen() {
     setHata('');
     setYukleniyor(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/users/', {
+      const response = await fetch('http://10.53.169.133:8000/users/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isim, email, sifre }),
