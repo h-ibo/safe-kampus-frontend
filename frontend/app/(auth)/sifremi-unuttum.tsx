@@ -16,7 +16,7 @@ export default function SifremiUnuttumScreen() {
     setHata('');
     setYukleniyor(true);
     try {
-      const response = await fetch(`http://127.0.0.1:8000/auth/sifre-sifirla-talep?email=${encodeURIComponent(email)}`, {
+      const response = await fetch(`https://safe-kampus-backend-production.up.railway.app/auth/sifre-sifirla-talep?email=${encodeURIComponent(email)}`, {
         method: 'POST',
       });
       if (!response.ok) throw new Error('Bir hata oluştu.');

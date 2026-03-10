@@ -21,7 +21,7 @@ export default function SifreSifirlaScreen() {
     setYukleniyor(true);
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/auth/sifre-sifirla?token=${token}&yeni_sifre=${encodeURIComponent(yeniSifre)}`,
+        `https://safe-kampus-backend-production.up.railway.app/auth/sifre-sifirla?token=${token}&yeni_sifre=${encodeURIComponent(yeniSifre)}`,
         { method: 'POST' }
       );
       const data = await response.json();

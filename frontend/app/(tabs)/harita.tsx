@@ -10,7 +10,7 @@ export default function HaritaScreen() {
     const fetchOlaylar = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await fetch('http://127.0.0.1:8000/olaylar/', {
+        const res = await fetch('https://safe-kampus-backend-production.up.railway.app/olaylar/', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
