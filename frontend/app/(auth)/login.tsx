@@ -43,7 +43,7 @@ export default function LoginScreen() {
   setHata('');
   setYukleniyor(true);
   try {
-    const response = await fetch('http://10.53.169.133:8000/auth/login', {
+    const response = await fetch('https://safe-kampus-backend-production.up.railway.app/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, sifre }),
