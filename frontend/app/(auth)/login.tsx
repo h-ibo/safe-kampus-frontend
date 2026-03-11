@@ -54,6 +54,9 @@ export default function LoginScreen() {
     await AsyncStorage.setItem('user_isim', data.isim);
     await AsyncStorage.setItem('user_rol', data.rol);
     await AsyncStorage.setItem('user_email', email);
+      // Push token kaydet
+      const { registerForPushNotifications } = await import('../../utils/notifications');
+      await registerForPushNotifications();
     if (data.rol === 'admin' || data.rol === 'guvenlik') {
       router.replace('/(admin)');
     } else {

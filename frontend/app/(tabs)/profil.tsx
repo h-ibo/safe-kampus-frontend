@@ -180,4 +180,4 @@ const styles = StyleSheet.create({
   sifreDuzenleBtnText: { color: '#4a7ab5', fontSize: 14, fontWeight: '600' },
   cikisBtn: { width: '100%', backgroundColor: '#1f0a0a', borderRadius: 12, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: '#e53e3e' },
   cikisBtnText: { color: '#fc8181', fontSize: 15, fontWeight: '700' },
-});
+}); 
