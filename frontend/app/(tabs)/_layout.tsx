@@ -26,40 +26,14 @@ export default function TabLayout() {
         },
         tabBarActiveTintColor: '#1a56db',
         tabBarInactiveTintColor: '#4a5568',
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
-        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Ana Sayfa',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="olaylarim"
-        options={{
-          title: 'Olaylarım',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="harita"
-        options={{
-          title: 'Harita',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🗺️" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profil"
-        options={{
-          title: 'Profil',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
-        }}
-      />
+      <Tabs.Screen name="index" options={{ title: 'Ana Sayfa', tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} /> }} />
+      <Tabs.Screen name="olaylarim" options={{ title: 'Olaylarım', tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} /> }} />
+      <Tabs.Screen name="harita" options={{ title: 'Harita', tabBarIcon: ({ focused }) => <TabIcon emoji="🗺️" focused={focused} /> }} />
+      <Tabs.Screen name="bildirimler" options={{ title: 'Bildirimler', tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} /> }} />
+      <Tabs.Screen name="profil" options={{ title: 'Profil', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
       <Tabs.Screen name="explore" options={{ href: null }} />
       <Tabs.Screen name="two" options={{ href: null }} />
     </Tabs>

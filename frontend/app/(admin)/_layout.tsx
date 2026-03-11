@@ -1,6 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Platform } from 'react-native';
-import { Text } from 'react-native';
+import { Platform, Text } from 'react-native';
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
   return <Text style={{ fontSize: focused ? 26 : 22, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>;
@@ -24,34 +23,11 @@ export default function AdminLayout() {
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Dashboard',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📊" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="olaylar"
-        options={{
-          title: 'Olaylar',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🚨" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="kullanicilar"
-        options={{
-          title: 'Kullanıcılar',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="👥" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profil"
-        options={{
-          title: 'Profil',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
-        }}
-      />
+      <Tabs.Screen name="index" options={{ title: 'Dashboard', tabBarIcon: ({ focused }) => <TabIcon emoji="📊" focused={focused} /> }} />
+      <Tabs.Screen name="olaylar" options={{ title: 'Olaylar', tabBarIcon: ({ focused }) => <TabIcon emoji="🚨" focused={focused} /> }} />
+      <Tabs.Screen name="kullanicilar" options={{ title: 'Kullanıcılar', tabBarIcon: ({ focused }) => <TabIcon emoji="👥" focused={focused} /> }} />
+      <Tabs.Screen name="bildirimler" options={{ title: 'Bildirimler', tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} /> }} />
+      <Tabs.Screen name="profil" options={{ title: 'Profil', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
     </Tabs>
   );
 }

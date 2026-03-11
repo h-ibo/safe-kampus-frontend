@@ -54,6 +54,7 @@ export default function LoginScreen() {
     await AsyncStorage.setItem('user_isim', data.isim);
     await AsyncStorage.setItem('user_rol', data.rol);
     await AsyncStorage.setItem('user_email', email);
+      await AsyncStorage.setItem('user_id', data.id.toString());
       // Push token kaydet
       const { registerForPushNotifications } = await import('../../utils/notifications');
       await registerForPushNotifications();
