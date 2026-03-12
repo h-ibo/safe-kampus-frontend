@@ -47,6 +47,8 @@ export default function AdminChatScreen() {
   };
 
   const fetchMesajlar = async () => {
+    const token0 = await AsyncStorage.getItem('token');
+    if (seciliKisi) fetch(`${API_URL}/chats/${seciliKisi.id}/okundu`, { method: 'PATCH', headers: { Authorization: `Bearer ${token0}` } }).catch(() => {});
     if (!seciliKisi) return;
     try {
       const token = await AsyncStorage.getItem('token');
