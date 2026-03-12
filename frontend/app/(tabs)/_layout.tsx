@@ -4,11 +4,7 @@ import { Platform } from 'react-native';
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
   const { Text } = require('react-native');
-  return (
-    <Text style={{ fontSize: focused ? 26 : 22, opacity: focused ? 1 : 0.5 }}>
-      {emoji}
-    </Text>
-  );
+  return <Text style={{ fontSize: focused ? 26 : 22, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>;
 }
 
 export default function TabLayout() {
@@ -31,10 +27,10 @@ export default function TabLayout() {
     >
       <Tabs.Screen name="index" options={{ title: 'Ana Sayfa', tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} /> }} />
       <Tabs.Screen name="olaylarim" options={{ title: 'Olaylarım', tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} /> }} />
-      <Tabs.Screen name="harita" options={{ title: 'Harita', tabBarIcon: ({ focused }) => <TabIcon emoji="🗺️" focused={focused} /> }} />
       <Tabs.Screen name="chat" options={{ title: 'Mesajlar', tabBarIcon: ({ focused }) => <TabIcon emoji="💬" focused={focused} /> }} />
       <Tabs.Screen name="bildirimler" options={{ title: 'Bildirimler', tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} /> }} />
       <Tabs.Screen name="profil" options={{ title: 'Profil', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
+      <Tabs.Screen name="harita" options={{ href: null }} />
       <Tabs.Screen name="explore" options={{ href: null }} />
       <Tabs.Screen name="two" options={{ href: null }} />
     </Tabs>
