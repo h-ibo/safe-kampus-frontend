@@ -24,7 +24,7 @@ export default function AdminLayout() {
     const fetchSayisi = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await fetch(`${API_URL}/chats/okunmamis-sayisi`, {
+        const res = await fetch(`${API_URL}/chats/meta/okunmamis-sayisi`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();

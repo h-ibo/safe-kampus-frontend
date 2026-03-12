@@ -38,7 +38,7 @@ export default function AdminChatScreen() {
   const fetchKonusmalar = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch(`${API_URL}/chats/konusmalarim`, {
+      const res = await fetch(`${API_URL}/chats/meta/konusmalarim`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
