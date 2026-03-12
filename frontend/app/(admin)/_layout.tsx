@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { Platform, Text, View, TouchableOpacity } from 'react-native';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { useRouter, useSegments } from 'expo-router';
 import { API_URL } from '../../constants/api';
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
@@ -14,6 +14,9 @@ function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
 function FloatingChatButton() {
   const [mesajSayisi, setMesajSayisi] = useState(0);
   const router = useRouter();
+  const segments = useSegments();
+  const isChatScreen = segments.includes('chat');
+  if (isChatScreen) return null;
 
   useEffect(() => {
     const fetchSayisi = async () => {
