@@ -16,7 +16,6 @@ function FloatingChatButton() {
   const router = useRouter();
   const segments = useSegments();
   const isChatScreen = segments.includes('chat');
-  if (isChatScreen) return null;
 
   useEffect(() => {
     const fetchSayisi = async () => {
@@ -35,6 +34,7 @@ function FloatingChatButton() {
     return () => clearInterval(interval);
   }, []);
 
+  if (isChatScreen) return null;
   return (
     <TouchableOpacity
       onPress={() => router.push('/(tabs)/chat')}
