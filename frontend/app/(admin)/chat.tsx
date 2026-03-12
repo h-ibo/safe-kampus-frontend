@@ -8,20 +8,23 @@ import * as ImagePicker from 'expo-image-picker';
 import { API_URL } from '../../constants/api';
 
 export default function AdminChatScreen() {
-  const [kullanicilar, setKullanicilar] = useState<any[]>([]);
+  const [konusmalar, setKonusmalar] = useState<any[]>([]);
   const [seciliKisi, setSeciliKisi] = useState<any>(null);
   const [mesajlar, setMesajlar] = useState<any[]>([]);
   const [yeniMesaj, setYeniMesaj] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
+  const [okunmamisSayisi, setOkunmamisSayisi] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
     const init = async () => {
       const id = await AsyncStorage.getItem('user_id');
       setUserId(id);
-      fetchKullanicilar();
+      fetchKonusmalar();
     };
     init();
+    const interval = setInterval(fetchKonusmalar, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -32,14 +35,14 @@ export default function AdminChatScreen() {
     }
   }, [seciliKisi]);
 
-  const fetchKullanicilar = async () => {
+  const fetchKonusmalar = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch(`${API_URL}/users/`, {
+      const res = await fetch(`${API_URL}/chats/konusmalarim`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      setKullanicilar(Array.isArray(data) ? data.filter((u: any) => u.rol === 'ogrenci') : []);
+      setKonusmalar(Array.isArray(data) ? data : []);
     } catch (e) { console.error(e); }
   };
 
@@ -67,6 +70,7 @@ export default function AdminChatScreen() {
       });
       setYeniMesaj('');
       fetchMesajlar();
+      fetchKonusmalar();
     } catch (e) { console.error(e); }
   };
 
@@ -74,8 +78,7 @@ export default function AdminChatScreen() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') { Alert.alert('İzin Gerekli', 'Galeri erişimi gerekiyor.'); return; }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      base64: true, quality: 0.7,
+      mediaTypes: ['images'], base64: true, quality: 0.7,
     });
     if (!result.canceled && result.assets[0].base64) {
       const token = await AsyncStorage.getItem('token');
@@ -104,31 +107,33 @@ export default function AdminChatScreen() {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>💬 Mesajlar</Text>
-          <Text style={styles.headerSub}>Öğrencilerle iletişim</Text>
+          <Text style={styles.headerSub}>{konusmalar.length} konuşma</Text>
         </View>
-        <FlatList
-          data={kullanicilar}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={{ padding: 16 }}
-          renderItem={({ item }) => (
-            <TouchableOpacity style={styles.kisiCard} onPress={() => setSeciliKisi(item)}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{item.isim[0].toUpperCase()}</Text>
-              </View>
-              <View>
-                <Text style={styles.kisiIsim}>{item.isim}</Text>
-                <Text style={styles.kisiRol}>🎓 Öğrenci</Text>
-              </View>
-              <Text style={styles.arrow}>›</Text>
-            </TouchableOpacity>
-          )}
-          ListEmptyComponent={
-            <View style={styles.centered}>
-              <Text style={styles.emptyIcon}>👤</Text>
-              <Text style={styles.emptyText}>Kullanıcı bulunamadı</Text>
-            </View>
-          }
-        />
+        {konusmalar.length === 0 ? (
+          <View style={styles.centered}>
+            <Text style={styles.emptyIcon}>💬</Text>
+            <Text style={styles.emptyText}>Henüz mesaj yok</Text>
+            <Text style={styles.emptySub}>Kullanıcılar size mesaj gönderdiğinde burada görünür</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={konusmalar}
+            keyExtractor={item => item.id.toString()}
+            contentContainerStyle={{ padding: 16 }}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.kisiCard} onPress={() => setSeciliKisi(item)}>
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>{item.isim[0].toUpperCase()}</Text>
+                </View>
+                <View style={styles.kisiInfo}>
+                  <Text style={styles.kisiIsim}>{item.isim}</Text>
+                  <Text style={styles.sonMesaj} numberOfLines={1}>{item.son_mesaj || '📷 Fotoğraf'}</Text>
+                </View>
+                <Text style={styles.arrow}>›</Text>
+              </TouchableOpacity>
+            )}
+          />
+        )}
       </View>
     );
   }
@@ -140,7 +145,7 @@ export default function AdminChatScreen() {
       keyboardVerticalOffset={90}
     >
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => setSeciliKisi(null)}>
+        <TouchableOpacity onPress={() => { setSeciliKisi(null); fetchKonusmalar(); }}>
           <Text style={styles.backBtn}>← Geri</Text>
         </TouchableOpacity>
         <View style={styles.headerKisi}>
@@ -207,12 +212,14 @@ const styles = StyleSheet.create({
   avatarText: { color: '#fff', fontSize: 20, fontWeight: '800' },
   avatarSmall: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#e53e3e', alignItems: 'center', justifyContent: 'center' },
   avatarSmallText: { color: '#fff', fontSize: 14, fontWeight: '800' },
+  kisiInfo: { flex: 1 },
   kisiIsim: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  kisiRol: { color: '#4a5568', fontSize: 13, marginTop: 2 },
-  arrow: { color: '#4a5568', fontSize: 24, marginLeft: 'auto' },
-  centered: { alignItems: 'center', paddingTop: 60 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyText: { color: '#4a5568', fontSize: 15 },
+  sonMesaj: { color: '#4a5568', fontSize: 13, marginTop: 2 },
+  arrow: { color: '#4a5568', fontSize: 24 },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
+  emptyIcon: { fontSize: 64, marginBottom: 8 },
+  emptyText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  emptySub: { color: '#4a5568', fontSize: 13, textAlign: 'center', paddingHorizontal: 40 },
   bubble: { maxWidth: '78%', borderRadius: 18, padding: 12, marginBottom: 8 },
   bubbleBenim: { alignSelf: 'flex-end', backgroundColor: '#e53e3e', borderBottomRightRadius: 4 },
   bubbleKarsi: { alignSelf: 'flex-start', backgroundColor: '#0d1526', borderBottomLeftRadius: 4, borderWidth: 1, borderColor: '#1e2d4a' },
