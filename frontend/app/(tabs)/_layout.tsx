@@ -1,24 +1,19 @@
 import { Tabs } from 'expo-router';
-import { Platform, Text, View } from 'react-native';
+import { Platform, Text, View, TouchableOpacity } from 'react-native';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { API_URL } from '../../constants/api';
 
-function TabIcon({ emoji, focused, badge }: { emoji: string; focused: boolean; badge?: number }) {
+function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
   return (
-    <View>
-      <Text style={{ fontSize: focused ? 26 : 22, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>
-      {badge ? (
-        <View style={{ position: 'absolute', top: -4, right: -8, backgroundColor: '#e53e3e', borderRadius: 10, minWidth: 18, height: 18, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800' }}>{badge > 99 ? '99+' : badge}</Text>
-        </View>
-      ) : null}
-    </View>
+    <Text style={{ fontSize: focused ? 26 : 22, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>
   );
 }
 
-export default function TabLayout() {
+function FloatingChatButton() {
   const [mesajSayisi, setMesajSayisi] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchSayisi = async () => {
@@ -38,30 +33,72 @@ export default function TabLayout() {
   }, []);
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: {
-          backgroundColor: '#0d1526',
-          borderTopColor: '#1e2d4a',
-          borderTopWidth: 1,
-          height: Platform.OS === 'ios' ? 85 : 65,
-          paddingBottom: Platform.OS === 'ios' ? 25 : 10,
-          paddingTop: 10,
-        },
-        tabBarActiveTintColor: '#1a56db',
-        tabBarInactiveTintColor: '#4a5568',
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+    <TouchableOpacity
+      onPress={() => router.push('/(tabs)/chat')}
+      style={{
+        position: 'absolute',
+        bottom: Platform.OS === 'ios' ? 100 : 80,
+        right: 16,
+        width: 52,
+        height: 52,
+        borderRadius: 26,
+        backgroundColor: '#1a56db',
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#1a56db',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.5,
+        shadowRadius: 8,
+        elevation: 8,
+        zIndex: 999,
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Ana Sayfa', tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} /> }} />
-      <Tabs.Screen name="olaylarim" options={{ title: 'Olaylarım', tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} /> }} />
-      <Tabs.Screen name="chat" options={{ title: 'Mesajlar', tabBarIcon: ({ focused }) => <TabIcon emoji="💬" focused={focused} badge={mesajSayisi} /> }} />
-      <Tabs.Screen name="bildirimler" options={{ title: 'Bildirimler', tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} /> }} />
-      <Tabs.Screen name="profil" options={{ title: 'Profil', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
-      <Tabs.Screen name="harita" options={{ href: null }} />
-      <Tabs.Screen name="explore" options={{ href: null }} />
-      <Tabs.Screen name="two" options={{ href: null }} />
-    </Tabs>
+      <Text style={{ fontSize: 22 }}>💬</Text>
+      {mesajSayisi > 0 && (
+        <View style={{
+          position: 'absolute', top: -2, right: -2,
+          backgroundColor: '#e53e3e', borderRadius: 10,
+          minWidth: 18, height: 18,
+          alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800' }}>
+            {mesajSayisi > 99 ? '99+' : mesajSayisi}
+          </Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+}
+
+export default function TabLayout() {
+  return (
+    <View style={{ flex: 1 }}>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: {
+            backgroundColor: '#0d1526',
+            borderTopColor: '#1e2d4a',
+            borderTopWidth: 1,
+            height: Platform.OS === 'ios' ? 85 : 65,
+            paddingBottom: Platform.OS === 'ios' ? 25 : 10,
+            paddingTop: 10,
+          },
+          tabBarActiveTintColor: '#1a56db',
+          tabBarInactiveTintColor: '#4a5568',
+          tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        }}
+      >
+        <Tabs.Screen name="index" options={{ title: 'Ana Sayfa', tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} /> }} />
+        <Tabs.Screen name="olaylarim" options={{ title: 'Olaylarım', tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} /> }} />
+        <Tabs.Screen name="harita" options={{ title: 'Harita', tabBarIcon: ({ focused }) => <TabIcon emoji="🗺️" focused={focused} /> }} />
+        <Tabs.Screen name="bildirimler" options={{ title: 'Bildirimler', tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} /> }} />
+        <Tabs.Screen name="profil" options={{ title: 'Profil', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
+        <Tabs.Screen name="chat" options={{ href: null }} />
+        <Tabs.Screen name="explore" options={{ href: null }} />
+        <Tabs.Screen name="two" options={{ href: null }} />
+      </Tabs>
+      <FloatingChatButton />
+    </View>
   );
 }
