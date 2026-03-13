@@ -18,7 +18,9 @@ export default function BildirimlerScreen() {
       const res = await fetch(`${API_URL}/notifications/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch(e) { console.error("Bildirim parse hatasi:", text); data = []; }
       setBildirimler(Array.isArray(data) ? data.reverse() : []);
     } catch (e) {
       console.error(e);
