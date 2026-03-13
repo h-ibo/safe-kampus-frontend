@@ -36,39 +36,40 @@ export default function LoginScreen() {
   }, []);
 
   const handleLogin = async () => {
-  if (!email || !sifre) {
-    setHata('Lütfen tüm alanları doldurun.');
-    return;
-  }
-  setHata('');
-  setYukleniyor(true);
-  try {
-    const response = await fetch('https://safe-kampus-backend-production.up.railway.app/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, sifre }),
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || 'Giriş başarısız.');
-    await AsyncStorage.setItem('token', data.access_token);
-    await AsyncStorage.setItem('user_isim', data.isim);
-    await AsyncStorage.setItem('user_rol', data.rol);
-    await AsyncStorage.setItem('user_email', email);
-      await AsyncStorage.setItem('user_id', data.id.toString());
-      // Push token kaydet
-      const { registerForPushNotifications } = await import('../../utils/notifications');
-      await registerForPushNotifications();
-    if (data.rol === 'admin' || data.rol === 'guvenlik') {
-      router.replace('/(admin)');
-    } else {
-      router.replace('/(tabs)');
+    if (!email || !sifre) {
+      setHata("Lütfen tüm alanları doldurun.");
+      return;
     }
-  } catch (e: any) {
-    setHata(e.message);
-  } finally {
-    setYukleniyor(false);
-  }
-};
+    setHata("");
+    setYukleniyor(true);
+    try {
+      const response = await fetch("https://safe-kampus-backend-production.up.railway.app/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, sifre }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "Giriş başarısız.");
+      await AsyncStorage.setItem("token", data.access_token);
+      await AsyncStorage.setItem("user_isim", data.isim);
+      await AsyncStorage.setItem("user_rol", data.rol);
+      await AsyncStorage.setItem("user_email", email);
+      await AsyncStorage.setItem("user_id", data.id.toString());
+      try {
+        const { registerForPushNotifications } = await import("../../utils/notifications");
+        await registerForPushNotifications();
+      } catch (e) { console.log("Push token hatasi:", e); }
+      if (data.rol === "admin" || data.rol === "guvenlik") {
+        router.replace("/(admin)");
+      } else {
+        router.replace("/(tabs)");
+      }
+    } catch (e: any) {
+      setHata(e.message);
+    } finally {
+      setYukleniyor(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
