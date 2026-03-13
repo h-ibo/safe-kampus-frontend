@@ -17,6 +17,11 @@
       "bundleIdentifier": "com.safekampus.app"
     },
     "android": {
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBBZ1SCJXQe2RfGf5y9MggvIYOD4dVF-BE"
+        }
+      },
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
