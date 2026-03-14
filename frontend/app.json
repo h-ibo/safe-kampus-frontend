@@ -32,8 +32,6 @@
       "package": "com.safekampus.app",
       "permissions": [
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION"
       ]
     },
@@ -64,6 +62,10 @@
         "projectId": "de9762a8-64a9-45c9-be1c-6e6c344ec61e"
       }
     },
-    "owner": "halil0"
+    "owner": "halil0",
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/de9762a8-64a9-45c9-be1c-6e6c344ec61e"
+    }
   }
 }

@@ -13,7 +13,6 @@ function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
 
 function FloatingChatButton() {
   const [mesajSayisi, setMesajSayisi] = useState(0);
-  const [bildirimSayisi, setBildirimSayisi] = useState(0);
   const router = useRouter();
   const segments = useSegments();
   const isChatScreen = segments.includes('chat');
@@ -28,9 +27,6 @@ function FloatingChatButton() {
         });
         const data = await res.json();
         setMesajSayisi(data.sayi || 0);
-        const res2 = await fetch(`${API_URL}/notifications/meta/okunmamis-sayisi`, { headers: { Authorization: `Bearer ${token}` } });
-        const data2 = await res2.json();
-        setBildirimSayisi(data2.sayi || 0);
       } catch (e) {}
     };
     fetchSayisi();
@@ -99,7 +95,7 @@ export default function AdminLayout() {
         <Tabs.Screen name="index" options={{ title: 'Dashboard', tabBarIcon: ({ focused }) => <TabIcon emoji="📊" focused={focused} /> }} />
         <Tabs.Screen name="olaylar" options={{ title: 'Olaylar', tabBarIcon: ({ focused }) => <TabIcon emoji="🚨" focused={focused} /> }} />
         <Tabs.Screen name="kullanicilar" options={{ title: 'Kullanıcılar', tabBarIcon: ({ focused }) => <TabIcon emoji="👥" focused={focused} /> }} />
-        <Tabs.Screen name="bildirimler" options={{ title: 'Bildirimler', tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} badge={bildirimSayisi} /> }} />
+        <Tabs.Screen name="bildirimler" options={{ title: 'Bildirimler', tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} /> }} />
         <Tabs.Screen name="profil" options={{ title: 'Profil', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
         <Tabs.Screen name="chat" options={{ href: null }} />
       </Tabs>
