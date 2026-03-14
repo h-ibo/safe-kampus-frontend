@@ -128,7 +128,7 @@ export default function AnaSayfa() {
         {duyurular.length > 0 && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>📢 Duyurular</Text>
-            {duyurular.slice(0, 3).map((d: any) => (
+            {duyurular.map((d: any) => (
               <View key={d.id} style={styles.duyuruKart}>
                 <Text style={styles.duyuruBaslik}>{d.baslik}</Text>
                 <Text style={styles.duyuruIcerik}>{d.icerik}</Text>
