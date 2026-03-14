@@ -74,8 +74,8 @@ function FloatingChatButton() {
 }
 
 export default function AdminLayout() {
-  const [bildirimSayisi, setBildirimSayisi] = React.useState(0);
-  React.useEffect(() => {
+  const [bildirimSayisi, setBildirimSayisi] = useState(0);
+  useEffect(() => {
     const fetchB = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
