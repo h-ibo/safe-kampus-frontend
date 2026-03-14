@@ -136,6 +136,7 @@ export default function AnaSayfa() {
                 <Text style={styles.duyuruTarih}>{new Date(d.created_at).toLocaleString('tr-TR')}</Text>
               </View>
             ))}
+            </ScrollView>
           </View>
         )}
 
