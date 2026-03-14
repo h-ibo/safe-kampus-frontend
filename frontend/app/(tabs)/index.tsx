@@ -128,13 +128,15 @@ export default function AnaSayfa() {
         {duyurular.length > 0 && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>📢 Duyurular</Text>
-            {duyurular.slice(0, 3).map((d: any) => (
+            <ScrollView style={{ maxHeight: 220 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+            {duyurular.map((d: any) => (
               <View key={d.id} style={styles.duyuruKart}>
                 <Text style={styles.duyuruBaslik}>{d.baslik}</Text>
                 <Text style={styles.duyuruIcerik}>{d.icerik}</Text>
                 <Text style={styles.duyuruTarih}>{new Date(d.created_at).toLocaleString('tr-TR')}</Text>
               </View>
             ))}
+            </ScrollView>
           </View>
         )}
 
