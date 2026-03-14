@@ -1,39 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 
 export default function HaritaScreen() {
   const [olaylar, setOlaylar] = useState<any[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
+  const [konum, setKonum] = useState<any>(null);
 
   useEffect(() => {
-    const fetchOlaylar = async () => {
+    const init = async () => {
+      // Konum izni
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const loc = await Location.getCurrentPositionAsync({});
+        setKonum(loc.coords);
+      }
+      // Olayları getir
       try {
         const token = await AsyncStorage.getItem('token');
         const res = await fetch('https://safe-kampus-backend-production.up.railway.app/olaylar/', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        setOlaylar(data.filter((o: any) => o.latitude && o.longitude));
+        setOlaylar(Array.isArray(data) ? data.filter((o: any) => o.latitude && o.longitude) : []);
       } catch (e) {
         console.error(e);
       } finally {
         setYukleniyor(false);
       }
     };
-    fetchOlaylar();
+    init();
   }, []);
 
   if (Platform.OS === 'web') {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Kampüs Haritası</Text>
+          <Text style={styles.headerTitle}>🗺️ Kampüs Haritası</Text>
         </View>
         <View style={styles.centered}>
           <Text style={styles.icon}>🗺️</Text>
           <Text style={styles.text}>Harita sadece mobil uygulamada çalışır</Text>
-          <Text style={styles.sub}>iOS veya Android uygulamasını kullanın</Text>
         </View>
       </View>
     );
@@ -42,10 +50,22 @@ export default function HaritaScreen() {
   const MapView = require('react-native-maps').default;
   const { Marker } = require('react-native-maps');
 
+  const initialRegion = konum ? {
+    latitude: konum.latitude,
+    longitude: konum.longitude,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
+  } : {
+    latitude: 37.1591,
+    longitude: 38.7969,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05,
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Kampüs Haritası</Text>
+        <Text style={styles.headerTitle}>🗺️ Kampüs Haritası</Text>
         <Text style={styles.headerSub}>{olaylar.length} konumlu olay</Text>
       </View>
       {yukleniyor ? (
@@ -55,12 +75,7 @@ export default function HaritaScreen() {
       ) : (
         <MapView
           style={styles.map}
-          initialRegion={{
-            latitude: 37.1591,
-            longitude: 38.7969,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          }}
+          initialRegion={initialRegion}
           showsUserLocation
           showsMyLocationButton
         >
@@ -70,6 +85,7 @@ export default function HaritaScreen() {
               coordinate={{ latitude: olay.latitude, longitude: olay.longitude }}
               title={olay.olay_turu}
               description={olay.konum}
+              pinColor="#e53e3e"
             />
           ))}
         </MapView>
@@ -87,5 +103,4 @@ const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
   icon: { fontSize: 64, marginBottom: 8 },
   text: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  sub: { color: '#4a5568', fontSize: 13 },
 });
