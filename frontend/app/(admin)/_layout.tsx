@@ -85,8 +85,8 @@ export default function AdminLayout() {
         setBildirimSayisi(d.sayi || 0);
       } catch (e) {}
     };
-    fetchB();
-    const iv = setInterval(fetchB, 10000);
+    setTimeout(fetchB, 1000);
+    const iv = setInterval(fetchB, 8000);
     return () => clearInterval(iv);
   }, []);
   return (

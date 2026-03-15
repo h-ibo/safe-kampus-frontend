@@ -46,7 +46,7 @@ export default function AnaSayfa() {
     try {
       const res = await apiFetch('/announcements/');
       const data = await res.json();
-      setDuyurular(data);
+      setDuyurular(Array.isArray(data) ? [...data].reverse() : []);
     } catch (e) {
       console.error(e);
     }
