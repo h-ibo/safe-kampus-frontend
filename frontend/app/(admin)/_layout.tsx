@@ -5,9 +5,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, useSegments } from 'expo-router';
 import { API_URL } from '../../constants/api';
 
-function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
+function TabIcon({ emoji, focused, badge }: { emoji: string; focused: boolean; badge?: number }) {
+  const { View, Text } = require("react-native");
   return (
-    <Text style={{ fontSize: focused ? 26 : 22, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>
+    <View>
+      <Text style={{ fontSize: focused ? 26 : 22, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>
+      {badge ? (
+        <View style={{ position: "absolute", top: -4, right: -8, backgroundColor: "#e53e3e", borderRadius: 10, minWidth: 18, height: 18, alignItems: "center", justifyContent: "center" }}>
+          <Text style={{ color: "#fff", fontSize: 10, fontWeight: "800" }}>{badge > 99 ? "99+" : badge}</Text>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
