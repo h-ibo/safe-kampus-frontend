@@ -7,19 +7,37 @@ import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, Touc
 export default function ProfilScreen() {
   const [isim, setIsim] = useState('');
   const [email, setEmail] = useState('');
+  const [telefon, setTelefon] = useState('');
+  const [ogrenciNo, setOgrenciNo] = useState('');
+  const [bolum, setBolum] = useState('');
+  const [fakulte, setFakulte] = useState('');
   const [yeniIsim, setYeniIsim] = useState('');
   const [duzenle, setDuzenle] = useState(false);
   const [yukleniyor, setYukleniyor] = useState(false);
-
   const [eskiSifre, setEskiSifre] = useState('');
   const [yeniSifre, setYeniSifre] = useState('');
   const [sifreDuzenle, setSifreDuzenle] = useState(false);
   const [sifreYukleniyor, setSifreYukleniyor] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem('user_isim').then(i => i && setIsim(i));
-    AsyncStorage.getItem('user_email').then(e => e && setEmail(e));
+    fetchProfil();
   }, []);
+
+  const fetchProfil = async () => {
+    try {
+      const res = await apiFetch('/users/me');
+      const data = await res.json();
+      setIsim(data.isim || '');
+      setEmail(data.email || '');
+      setTelefon(data.telefon || '');
+      setOgrenciNo(data.ogrenci_no || '');
+      setBolum(data.bolum || '');
+      setFakulte(data.fakulte || '');
+      await AsyncStorage.setItem('user_isim', data.isim || '');
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const handleCikis = async () => {
     await AsyncStorage.multiRemove(['token', 'user_isim', 'user_email', 'user_rol']);
@@ -100,6 +118,34 @@ export default function ProfilScreen() {
             <Text style={styles.infoLabel}>✉ E-posta</Text>
             <Text style={styles.infoValue}>{email}</Text>
           </View>
+          {telefon ? <>
+            <View style={styles.ayrac} />
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>📱 Telefon</Text>
+              <Text style={styles.infoValue}>{telefon}</Text>
+            </View>
+          </> : null}
+          {ogrenciNo ? <>
+            <View style={styles.ayrac} />
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>🎓 Öğrenci No</Text>
+              <Text style={styles.infoValue}>{ogrenciNo}</Text>
+            </View>
+          </> : null}
+          {bolum ? <>
+            <View style={styles.ayrac} />
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>📚 Bölüm</Text>
+              <Text style={styles.infoValue}>{bolum}</Text>
+            </View>
+          </> : null}
+          {fakulte ? <>
+            <View style={styles.ayrac} />
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>🏛️ Fakülte</Text>
+              <Text style={styles.infoValue}>{fakulte}</Text>
+            </View>
+          </> : null}
         </View>
 
         {duzenle && (
@@ -112,7 +158,6 @@ export default function ProfilScreen() {
           </TouchableOpacity>
         )}
 
-        {/* Şifre Değiştir */}
         <TouchableOpacity
           style={styles.sifreDuzenleBtn}
           onPress={() => setSifreDuzenle(!sifreDuzenle)}
@@ -170,7 +215,7 @@ const styles = StyleSheet.create({
   infoKart: { width: '100%', backgroundColor: '#0d1526', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#1e2d4a', marginBottom: 16 },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 },
   infoLabel: { color: '#4a5568', fontSize: 14 },
-  infoValue: { color: '#e2e8f0', fontSize: 14, fontWeight: '600' },
+  infoValue: { color: '#e2e8f0', fontSize: 14, fontWeight: '600', flex: 1, textAlign: 'right' },
   input: { color: '#e2e8f0', fontSize: 14, borderBottomWidth: 1, borderBottomColor: '#4a7ab5', paddingVertical: 4, minWidth: 150, textAlign: 'right' },
   sifreInput: { color: '#e2e8f0', fontSize: 14, paddingVertical: 10 },
   ayrac: { height: 1, backgroundColor: '#1e2d4a', marginVertical: 4 },
@@ -180,4 +225,4 @@ const styles = StyleSheet.create({
   sifreDuzenleBtnText: { color: '#4a7ab5', fontSize: 14, fontWeight: '600' },
   cikisBtn: { width: '100%', backgroundColor: '#1f0a0a', borderRadius: 12, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: '#e53e3e' },
   cikisBtnText: { color: '#fc8181', fontSize: 15, fontWeight: '700' },
-}); 
+});
