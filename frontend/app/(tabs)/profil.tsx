@@ -24,20 +24,21 @@ export default function ProfilScreen() {
   }, []);
 
   const fetchProfil = async () => {
-    try {
-      const res = await apiFetch('/users/me');
-      const data = await res.json();
-      setIsim(data.isim || '');
-      setEmail(data.email || '');
-      setTelefon(data.telefon || '');
-      setOgrenciNo(data.ogrenci_no || '');
-      setBolum(data.bolum || '');
-      setFakulte(data.fakulte || '');
-      await AsyncStorage.setItem('user_isim', data.isim || '');
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  try {
+    const res = await apiFetch('/users/me');
+    if (!res.ok) throw new Error('Profil alınamadı.');
+    const data = await res.json();
+    setIsim(data.isim || '');
+    setEmail(data.email || '');
+    setTelefon(data.telefon || '');
+    setOgrenciNo(data.ogrenci_no || '');
+    setBolum(data.bolum || '');
+    setFakulte(data.fakulte || '');
+    await AsyncStorage.setItem('user_isim', data.isim || '');
+  } catch (e) {
+    console.error(e);
+  }
+};
 
   const handleCikis = async () => {
     await AsyncStorage.multiRemove(['token', 'user_isim', 'user_email', 'user_rol']);
