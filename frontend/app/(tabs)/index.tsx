@@ -1,5 +1,6 @@
 import { apiFetch } from '@/constants/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -61,12 +62,26 @@ export default function AnaSayfa() {
   const handleAcil = async () => {
     setYukleniyor(true);
     try {
+      let konumMetin = 'Konum alınamadı';
+      let latitude = null;
+      let longitude = null;
+
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+        latitude = loc.coords.latitude;
+        longitude = loc.coords.longitude;
+        konumMetin = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+      }
+
       const response = await apiFetch('/olaylar/', {
         method: 'POST',
         body: JSON.stringify({
           olay_turu: 'ACİL YARDIM',
-          konum: 'Konum belirsiz',
-          aciklama: 'ACİL YARDIM talebi! Kullanıcı yardım istiyor.'
+          konum: konumMetin,
+          aciklama: 'ACİL YARDIM talebi! Kullanıcı yardım istiyor.',
+          latitude,
+          longitude,
         }),
       });
       if (!response.ok) throw new Error('Gönderim başarısız.');
@@ -129,13 +144,13 @@ export default function AnaSayfa() {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>📢 Duyurular</Text>
             <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-            {duyurular.map((d: any) => (
-              <View key={d.id} style={styles.duyuruKart}>
-                <Text style={styles.duyuruBaslik}>{d.baslik}</Text>
-                <Text style={styles.duyuruIcerik}>{d.icerik}</Text>
-                <Text style={styles.duyuruTarih}>{new Date(d.created_at).toLocaleString('tr-TR')}</Text>
-              </View>
-            ))}
+              {duyurular.map((d: any) => (
+                <View key={d.id} style={styles.duyuruKart}>
+                  <Text style={styles.duyuruBaslik}>{d.baslik}</Text>
+                  <Text style={styles.duyuruIcerik}>{d.icerik}</Text>
+                  <Text style={styles.duyuruTarih}>{new Date(d.created_at).toLocaleString('tr-TR')}</Text>
+                </View>
+              ))}
             </ScrollView>
           </View>
         )}
