@@ -1,10 +1,12 @@
 import { apiFetch } from '@/constants/api';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const DURUMLAR = ['beklemede', 'inceleniyor', 'cozuldu'];
 
 export default function AdminOlaylar() {
+  const router = useRouter();
   const [olaylar, setOlaylar] = useState<any[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
 
@@ -27,7 +29,7 @@ export default function AdminOlaylar() {
   useEffect(() => { fetchOlaylar(); }, []);
 
   const renderOlay = ({ item }: any) => (
-    <View style={styles.kart}>
+    <TouchableOpacity style={styles.kart} onPress={() => router.push({ pathname: '/(admin)/olay-detay', params: { id: item.id } })}>
       <View style={styles.kartHeader}>
         <Text style={styles.olayTuru}>{item.olay_turu.toUpperCase()}</Text>
         <Text style={styles.olayId}>#{item.id}</Text>
@@ -46,7 +48,7 @@ export default function AdminOlaylar() {
           </TouchableOpacity>
         ))}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
