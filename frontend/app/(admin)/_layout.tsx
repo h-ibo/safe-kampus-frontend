@@ -121,6 +121,7 @@ export default function AdminLayout() {
         <Tabs.Screen name="bildirimler" options={{ title: 'Bildirimler', tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} badge={bildirimSayisi} /> }} />
         <Tabs.Screen name="profil" options={{ title: 'Profil', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
         <Tabs.Screen name="chat" options={{ href: null }} />
+        <Tabs.Screen name="olay-detay" options={{ href: null }} />
       </Tabs>
       <FloatingChatButton />
     </View>

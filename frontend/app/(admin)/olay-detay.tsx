@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { apiFetch } from '@/constants/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../constants/api';
 
 const DURUMLAR = ['beklemede', 'inceleniyor', 'cozuldu'];
 
@@ -30,7 +31,8 @@ export default function OlayDetay() {
   useEffect(() => {
     const fetchOlay = async () => {
       try {
-        const res = await apiFetch(`/olaylar/${id}`);
+        const token = await AsyncStorage.getItem('token');
+        const res = await fetch(`${API_URL}/olaylar/${id}`, { headers: { Authorization: `Bearer ${token}` } });
         const data = await res.json();
         setOlay(data);
       } catch (e) { console.error(e); }
@@ -41,7 +43,8 @@ export default function OlayDetay() {
 
   const durumGuncelle = async (durum: string) => {
     try {
-      await apiFetch(`/olaylar/${id}/durum?durum=${durum}`, { method: 'PUT' });
+      const token = await AsyncStorage.getItem('token');
+      await fetch(`${API_URL}/olaylar/${id}/durum?durum=${durum}`, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
       setOlay({ ...olay, durum });
     } catch (e) { console.error(e); }
   };
