@@ -19,7 +19,7 @@ export default function HaritaScreen() {
       // Olayları getir
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await fetch('https://safe-kampus-backend-production.up.railway.app/olaylar/', {
+        const res = await fetch('https://safe-kampus-backend.onrender.com/olaylar/', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
