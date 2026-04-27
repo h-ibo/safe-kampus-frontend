@@ -23,7 +23,7 @@ function FloatingChatButton() {
   const [mesajSayisi, setMesajSayisi] = useState(0);
   const router = useRouter();
   const segments = useSegments();
-  const isChatScreen = segments.includes('chat');
+  const isChatScreen = segments.includes('chat') || segments.includes('ai-chat');
 
   useEffect(() => {
     const fetchSayisi = async () => {
@@ -44,40 +44,65 @@ function FloatingChatButton() {
 
   if (isChatScreen) return null;
   return (
-    <TouchableOpacity
-      onPress={() => router.push('/(tabs)/chat')}
-      style={{
-        position: 'absolute',
-        bottom: Platform.OS === 'ios' ? 100 : 80,
-        right: 16,
-        width: 52,
-        height: 52,
-        borderRadius: 26,
-        backgroundColor: '#1a56db',
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#1a56db',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.5,
-        shadowRadius: 8,
-        elevation: 8,
-        zIndex: 999,
-      }}
-    >
-      <Text style={{ fontSize: 22 }}>💬</Text>
-      {mesajSayisi > 0 && (
-        <View style={{
-          position: 'absolute', top: -2, right: -2,
-          backgroundColor: '#e53e3e', borderRadius: 10,
-          minWidth: 18, height: 18,
-          alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800' }}>
-            {mesajSayisi > 99 ? '99+' : mesajSayisi}
-          </Text>
-        </View>
-      )}
-    </TouchableOpacity>
+    <View>
+      <TouchableOpacity
+        onPress={() => router.push('/(tabs)/ai-chat')}
+        style={{
+          position: 'absolute',
+          bottom: Platform.OS === 'ios' ? 160 : 140,
+          right: 16,
+          width: 52,
+          height: 52,
+          borderRadius: 26,
+          backgroundColor: '#6d28d9',
+          alignItems: 'center',
+          justifyContent: 'center',
+          shadowColor: '#6d28d9',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.5,
+          shadowRadius: 8,
+          elevation: 8,
+          zIndex: 999,
+        }}
+      >
+        <Text style={{ fontSize: 22 }}>🤖</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => router.push('/(tabs)/chat')}
+        style={{
+          position: 'absolute',
+          bottom: Platform.OS === 'ios' ? 100 : 80,
+          right: 16,
+          width: 52,
+          height: 52,
+          borderRadius: 26,
+          backgroundColor: '#1a56db',
+          alignItems: 'center',
+          justifyContent: 'center',
+          shadowColor: '#1a56db',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.5,
+          shadowRadius: 8,
+          elevation: 8,
+          zIndex: 999,
+        }}
+      >
+        <Text style={{ fontSize: 22 }}>💬</Text>
+        {mesajSayisi > 0 && (
+          <View style={{
+            position: 'absolute', top: -2, right: -2,
+            backgroundColor: '#e53e3e', borderRadius: 10,
+            minWidth: 18, height: 18,
+            alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800' }}>
+              {mesajSayisi > 99 ? '99+' : mesajSayisi}
+            </Text>
+          </View>
+        )}
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -97,6 +122,7 @@ export default function TabLayout() {
     const iv = setInterval(fetchB, 8000);
     return () => clearInterval(iv);
   }, []);
+
   return (
     <View style={{ flex: 1 }}>
       <Tabs
@@ -121,6 +147,7 @@ export default function TabLayout() {
         <Tabs.Screen name="bildirimler" options={{ title: 'Bildirimler', tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} badge={bildirimSayisi} /> }} />
         <Tabs.Screen name="profil" options={{ title: 'Profil', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
         <Tabs.Screen name="chat" options={{ href: null }} />
+        <Tabs.Screen name="ai-chat" options={{ href: null }} />
         <Tabs.Screen name="explore" options={{ href: null }} />
         <Tabs.Screen name="two" options={{ href: null }} />
       </Tabs>

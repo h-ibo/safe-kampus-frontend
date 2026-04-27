@@ -27,12 +27,31 @@ export default function ChatScreen() {
   }, []);
 
   useEffect(() => {
-    if (seciliKisi) {
+    if (seciliKisi && userId) {
       fetchMesajlar();
-      const interval = setInterval(fetchMesajlar, 5000);
-      return () => clearInterval(interval);
+      
+      const WS_URL = API_URL.replace(/^http/, 'ws');
+      const ws = new WebSocket(`${WS_URL}/chats/ws/${userId}`);
+      
+      ws.onmessage = (event) => {
+        try {
+          const yeniMesaj = JSON.parse(event.data);
+          // Gelen mesaj şu anki sohbetle ilgili mi kontrol et
+          if (yeniMesaj.sender_id === seciliKisi.id || yeniMesaj.receiver_id === seciliKisi.id) {
+            setMesajlar(prev => {
+              if (prev.find(m => m.id === yeniMesaj.id)) return prev;
+              return [...prev, yeniMesaj];
+            });
+            setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+          }
+        } catch (e) { console.error('WS Parse error', e); }
+      };
+
+      return () => {
+        ws.close();
+      };
     }
-  }, [seciliKisi]);
+  }, [seciliKisi, userId]);
 
   const fetchGuvenlikListesi = async () => {
     try {
