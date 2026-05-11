@@ -205,7 +205,7 @@ export default function ProfilScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#070b14' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16, backgroundColor: '#0d1526', borderBottomWidth: 1, borderBottomColor: '#1e2d4a' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 16, backgroundColor: '#0d1526', borderBottomWidth: 1, borderBottomColor: '#1e2d4a' },
   headerTitle: { color: '#fff', fontSize: 20, fontWeight: '800' },
   duzenleBtn: { color: '#4a7ab5', fontSize: 14, fontWeight: '600' },
   content: { alignItems: 'center', padding: 24, paddingBottom: 40 },

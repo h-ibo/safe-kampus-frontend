@@ -223,7 +223,7 @@ export default function AdminChatScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#070b14' },
-  header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16, backgroundColor: '#0d1526', borderBottomWidth: 1, borderBottomColor: '#1e2d4a' },
+  header: { paddingHorizontal: 20, paddingTop: 50, paddingBottom: 16, backgroundColor: '#0d1526', borderBottomWidth: 1, borderBottomColor: '#1e2d4a' },
   headerTitle: { color: '#fff', fontSize: 20, fontWeight: '800' },
   headerSub: { color: '#4a5568', fontSize: 13, marginTop: 2 },
   headerKisi: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 },
