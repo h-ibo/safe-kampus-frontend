@@ -87,11 +87,11 @@ export default function LoginScreen() {
         <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }] }]}>
           <View style={styles.logoIcon}>
             <View style={styles.logoShield}>
-              <Text style={styles.logoShieldText}>S</Text>
+              <Text style={styles.logoShieldText}>K</Text>
             </View>
           </View>
-          <Text style={styles.logoText}>SAFE<Text style={styles.logoAccent}>KAMPUS</Text></Text>
-          <Text style={styles.logoTagline}>Kampüs Güvenlik Sistemi</Text>
+          <Text style={styles.logoText}>KAM<Text style={styles.logoAccent}>PÜS</Text></Text>
+          <Text style={styles.logoTagline}>Harran Üniversitesi Güvenlik Sistemi</Text>
         </Animated.View>
 
         <View style={styles.formCard}>
@@ -104,7 +104,7 @@ export default function LoginScreen() {
               <Text style={styles.inputIcon}>✉</Text>
               <TextInput
                 style={styles.input}
-                placeholder="ornek@universite.edu.tr"
+                placeholder="ornek@harran.edu.tr"
                 placeholderTextColor="#4a5568"
                 value={email}
                 onChangeText={setEmail}
@@ -162,7 +162,6 @@ export default function LoginScreen() {
             <Text style={styles.dividerText}>veya</Text>
             <View style={styles.dividerLine} />
           </View>
-          
 
           <TouchableOpacity
             style={styles.registerButton}
@@ -173,7 +172,7 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.footer}>© 2025 SafeKampus • Güvenli Kampüs Platformu</Text>
+        <Text style={styles.footer}>© 2025 Kampüs • Harran Üniversitesi</Text>
       </Animated.View>
     </KeyboardAvoidingView>
   );
