@@ -1,0 +1,123 @@
+import { Tabs } from 'expo-router';
+import { Platform, Text, View, TouchableOpacity } from 'react-native';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter, useSegments } from 'expo-router';
+import { API_URL } from '../../constants/api';
+
+function TabIcon({ emoji, focused, badge }: { emoji: string; focused: boolean; badge?: number }) {
+  return (
+    <View>
+      <Text style={{ fontSize: focused ? 26 : 22, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>
+      {badge ? (
+        <View style={{ position: 'absolute', top: -4, right: -8, backgroundColor: '#e53e3e', borderRadius: 10, minWidth: 18, height: 18, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800' }}>{badge > 99 ? '99+' : badge}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function FloatingChatButton() {
+  const [mesajSayisi, setMesajSayisi] = useState(0);
+  const router = useRouter();
+  const segments = useSegments();
+  const isChatScreen = segments.includes('chat');
+
+  useEffect(() => {
+    const fetchSayisi = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) return;
+        const res = await fetch(`${API_URL}/chats/meta/okunmamis-sayisi`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setMesajSayisi(data.sayi || 0);
+      } catch (e) {}
+    };
+    fetchSayisi();
+    const interval = setInterval(fetchSayisi, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (isChatScreen) return null;
+
+  return (
+    <TouchableOpacity
+      onPress={() => router.push('/(guvenlik)/chat')}
+      style={{
+        position: 'absolute',
+        bottom: Platform.OS === 'ios' ? 100 : 80,
+        right: 16,
+        width: 52,
+        height: 52,
+        borderRadius: 26,
+        backgroundColor: '#16a34a',
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#16a34a',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.5,
+        shadowRadius: 8,
+        elevation: 8,
+        zIndex: 999,
+      }}
+    >
+      <Text style={{ fontSize: 22 }}>💬</Text>
+      {mesajSayisi > 0 && (
+        <View style={{ position: 'absolute', top: -2, right: -2, backgroundColor: '#e53e3e', borderRadius: 10, minWidth: 18, height: 18, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800' }}>{mesajSayisi > 99 ? '99+' : mesajSayisi}</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+}
+
+export default function GuvenlikLayout() {
+  const [bildirimSayisi, setBildirimSayisi] = useState(0);
+
+  useEffect(() => {
+    const fetchB = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) return;
+        const r = await fetch(`${API_URL}/notifications/meta/okunmamis-sayisi`, { headers: { Authorization: `Bearer ${token}` } });
+        const d = await r.json();
+        setBildirimSayisi(d.sayi || 0);
+      } catch (e) {}
+    };
+    fetchB();
+    const iv = setInterval(fetchB, 10000);
+    return () => clearInterval(iv);
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: {
+            backgroundColor: '#0d1526',
+            borderTopColor: '#1e2d4a',
+            borderTopWidth: 1,
+            height: Platform.OS === 'ios' ? 85 : 65,
+            paddingBottom: Platform.OS === 'ios' ? 25 : 10,
+            paddingTop: 10,
+          },
+          tabBarActiveTintColor: '#16a34a',
+          tabBarInactiveTintColor: '#4a5568',
+          tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        }}
+      >
+        <Tabs.Screen name="index" options={{ title: 'Olaylar', tabBarIcon: ({ focused }) => <TabIcon emoji="🚨" focused={focused} /> }} />
+        <Tabs.Screen name="harita" options={{ title: 'Harita', tabBarIcon: ({ focused }) => <TabIcon emoji="🗺️" focused={focused} /> }} />
+        <Tabs.Screen name="bildirimler" options={{ title: 'Bildirimler', tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} badge={bildirimSayisi} /> }} />
+        <Tabs.Screen name="profil" options={{ title: 'Profil', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
+        <Tabs.Screen name="chat" options={{ href: null }} />
+        <Tabs.Screen name="olay-detay" options={{ href: null }} />
+      </Tabs>
+      <FloatingChatButton />
+    </View>
+  );
+}

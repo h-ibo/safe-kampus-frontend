@@ -59,8 +59,10 @@ export default function LoginScreen() {
         const { registerForPushNotifications } = await import("../../utils/notifications");
         await registerForPushNotifications();
       } catch (e) { console.log("Push token hatasi:", e); }
-      if (data.rol === "admin" || data.rol === "guvenlik") {
+      if (data.rol === "admin") {
         router.replace("/(admin)");
+      } else if (data.rol === "guvenlik") {
+        router.replace("/(guvenlik)");
       } else {
         router.replace("/(tabs)");
       }
