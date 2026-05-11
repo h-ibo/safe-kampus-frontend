@@ -98,9 +98,19 @@ export default function AnaSayfa() {
     if (!konum) { alert('Lütfen konum girin.'); return; }
     setYukleniyor(true);
     try {
+      let latitude = null;
+      let longitude = null;
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const loc = await Location.getCurrentPositionAsync({});
+          latitude = loc.coords.latitude;
+          longitude = loc.coords.longitude;
+        }
+      } catch (e) { console.log('Konum alınamadı:', e); }
       const response = await apiFetch('/olaylar/', {
         method: 'POST',
-        body: JSON.stringify({ olay_turu: secilenTur, konum, aciklama }),
+        body: JSON.stringify({ olay_turu: secilenTur, konum, aciklama, latitude, longitude }),
       });
       if (!response.ok) throw new Error('Gönderim başarısız.');
       setBasarili(true);
