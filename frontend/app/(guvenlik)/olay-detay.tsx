@@ -68,7 +68,7 @@ export default function OlayDetay() {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backBtn}>← Geri</Text>
+          <Text style={styles.backBtn}>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Olay Detayı</Text>
       </View>
