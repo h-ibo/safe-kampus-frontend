@@ -164,7 +164,7 @@ export default function ChatScreen() {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={90}
+      keyboardVerticalOffset={0}
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setSeciliKisi(null)}>
