@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 
 // Şeffaf logo yolu
-import KampusLogo from '../../../assets/images/kampus_logo.png';
+import KampusLogo from '../../assets/images/kampus_logo.png';
 
 const { width } = Dimensions.get('window');
 

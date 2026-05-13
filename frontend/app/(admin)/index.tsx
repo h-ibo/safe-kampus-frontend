@@ -11,7 +11,13 @@ export default function AdminDashboard() {
   const [duyuruIcerik, setDuyuruIcerik] = useState('');
   const [duyuruGonderiyor, setDuyuruGonderiyor] = useState(false);
 
+  // GÜVENLİK STATE'LERİ
+  const [showSecurityForm, setShowSecurityForm] = useState(false);
+  const [securityForm, setSecurityForm] = useState({ isim: '', email: '', sifre: '', telefon: '' });
+  const [securityLoading, setSecurityLoading] = useState(false);
+
   useEffect(() => {
+    // Burada anahtarın 'user_isim' olduğundan emin ol, Login'de ne yazdıysan o olmalı
     AsyncStorage.getItem('user_isim').then(i => i && setIsim(i));
     fetchOlaylar();
   }, []);
@@ -22,9 +28,40 @@ export default function AdminDashboard() {
       const data = await res.json();
       setOlaylar(data);
     } catch (e) {
-      console.error(e);
+      console.error("Olaylar yüklenirken hata:", e);
     } finally {
       setYukleniyor(false);
+    }
+  };
+
+  const handleSecurityEkle = async () => {
+    if (!securityForm.isim || !securityForm.email || !securityForm.sifre) {
+      Alert.alert('Hata', 'Lütfen zorunlu alanları (Ad, E-posta, Şifre) doldurun.');
+      return;
+    }
+
+    setSecurityLoading(true);
+    try {
+      // apiFetch zaten içindeki 'token'ı alıp Authorization header'ına ekliyor
+      const res = await apiFetch('/users/create-security', {
+        method: 'POST',
+        body: JSON.stringify(securityForm),
+      });
+      
+      const result = await res.json();
+
+      if (res.ok) {
+        Alert.alert('Başarılı', 'Güvenlik görevlisi başarıyla oluşturuldu.');
+        setSecurityForm({ isim: '', email: '', sifre: '', telefon: '' });
+        setShowSecurityForm(false);
+      } else {
+        // Backend'den gelen hata mesajını göster (Örn: "Bu email zaten kayıtlı")
+        Alert.alert('Hata', result.detail || 'İşlem başarısız oldu.');
+      }
+    } catch (e: any) {
+      Alert.alert('Bağlantı Hatası', 'Sunucu ile iletişim kurulamadı.');
+    } finally {
+      setSecurityLoading(false);
     }
   };
 
@@ -85,6 +122,61 @@ export default function AdminDashboard() {
             <Text style={styles.statLabel}>Toplam</Text>
             <Text style={styles.statIcon}>📊</Text>
           </View>
+        </View>
+
+        {/* GÜVENLİK GÖREVLİSİ EKLEME BÖLÜMÜ */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>🛡️ Güvenlik Yönetimi</Text>
+            <TouchableOpacity onPress={() => setShowSecurityForm(!showSecurityForm)}>
+              <Text style={styles.yenile}>{showSecurityForm ? 'Kapat' : '+ Yeni Görevli'}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {showSecurityForm && (
+            <View style={{ marginTop: 10 }}>
+              <TextInput
+                style={styles.input}
+                placeholder="Ad Soyad"
+                placeholderTextColor="#4a5568"
+                value={securityForm.isim}
+                onChangeText={(t) => setSecurityForm({ ...securityForm, isim: t })}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="E-posta"
+                placeholderTextColor="#4a5568"
+                autoCapitalize="none"
+                value={securityForm.email}
+                onChangeText={(t) => setSecurityForm({ ...securityForm, email: t })}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Şifre"
+                placeholderTextColor="#4a5568"
+                secureTextEntry
+                value={securityForm.sifre}
+                onChangeText={(t) => setSecurityForm({ ...securityForm, sifre: t })}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Telefon (İsteğe bağlı)"
+                placeholderTextColor="#4a5568"
+                value={securityForm.telefon}
+                onChangeText={(t) => setSecurityForm({ ...securityForm, telefon: t })}
+              />
+              <TouchableOpacity
+                style={[styles.duyuruBtn, { backgroundColor: '#38a169' }, securityLoading && { opacity: 0.6 }]}
+                onPress={handleSecurityEkle}
+                disabled={securityLoading}
+              >
+                {securityLoading
+                  ? <ActivityIndicator color="#fff" />
+                  : <Text style={styles.duyuruBtnText}>GÖREVLİYİ KAYDET →</Text>
+                }
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* Duyuru Oluştur */}

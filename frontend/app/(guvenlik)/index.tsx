@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
 import { apiFetch } from '@/constants/api';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const DURUMLAR = ['beklemede', 'inceleniyor', 'cozuldu'];
 
@@ -22,20 +22,41 @@ export default function GuvenlikOlaylar() {
   const [yukleniyor, setYukleniyor] = useState(true);
 
   const fetchOlaylar = async () => {
+    console.log(">>> OLAYLAR LISTESI GUNCELENIYOR...");
     setYukleniyor(true);
     try {
       const res = await apiFetch('/olaylar/');
+      console.log(">>> OLAYLAR CEVAP DURUMU:", res.status);
+      
       const data = await res.json();
       setOlaylar(Array.isArray(data) ? data : []);
-    } catch (e) { console.error(e); }
+    } catch (e: any) { 
+      console.error(">>> OLAYLAR CEKILEMEDI:", e.message); 
+    }
     finally { setYukleniyor(false); }
   };
 
   const durumGuncelle = async (id: number, durum: string) => {
+    console.log(`>>> DURUM GUNCELLEME BASLATILDI: ID=${id}, YENI DURUM=${durum}`);
     try {
-      await apiFetch(`/olaylar/${id}/durum?durum=${durum}`, { method: 'PUT' });
-      fetchOlaylar();
-    } catch (e) { console.error(e); }
+      const res = await apiFetch(`/olaylar/${id}/durum?durum=${durum}`, { 
+        method: 'PUT' 
+      });
+
+      console.log(">>> GUNCELLEME CEVAP DURUMU:", res.status);
+
+      if (res.ok) {
+        console.log(">>> DURUM BASARIYLA GUNCELLENDI");
+        fetchOlaylar();
+      } else {
+        const errorData = await res.json();
+        console.log(">>> GUNCELLEME HATASI:", errorData);
+        Alert.alert('Hata', errorData.detail || 'Durum güncellenemedi.');
+      }
+    } catch (e: any) { 
+      console.error(">>> DURUM GUNCELLEME SIRASINDA HATA:", e.message); 
+      Alert.alert('Hata', 'Sunucuya bağlanılamadı.');
+    }
   };
 
   useEffect(() => { fetchOlaylar(); }, []);
@@ -57,12 +78,16 @@ export default function GuvenlikOlaylar() {
       </View>
       {item.aciklama ? <Text style={styles.aciklama}>{item.aciklama}</Text> : null}
       <Text style={styles.tarih}>{new Date(item.created_at).toLocaleString('tr-TR')}</Text>
+      
       <View style={styles.durumlar}>
         {DURUMLAR.map(d => (
           <TouchableOpacity
             key={d}
             style={[styles.durumBtn, item.durum === d && styles.durumBtnAktif]}
-            onPress={(e) => { durumGuncelle(item.id, d); }}
+            onPress={() => {
+              // stopPropagation eklemeye gerek yok çünkü TouchableOpacity içinde TouchableOpacity yok
+              durumGuncelle(item.id, d);
+            }}
           >
             <Text style={[styles.durumBtnText, item.durum === d && styles.durumBtnTextAktif]}>{d}</Text>
           </TouchableOpacity>
