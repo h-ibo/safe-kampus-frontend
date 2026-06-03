@@ -58,7 +58,7 @@ export default function RegisterScreen() {
     setHata('');
     setYukleniyor(true);
     try {
-      const response = await fetch('https://safe-kampus-backend.onrender.com/users/', {
+      const response = await fetch('https://safe-kampus-backend-1.onrender.com/users/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isim, email, sifre, telefon, ogrenci_no: ogrenciNo, bolum, fakulte }),

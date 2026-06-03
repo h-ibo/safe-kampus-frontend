@@ -45,7 +45,7 @@ export default function HaritaScreen() {
 
         // 2. Olay Verilerini Çekme
         const token = await AsyncStorage.getItem('token');
-        const res = await fetch('https://safe-kampus-backend.onrender.com/olaylar/', {
+        const res = await fetch('https://safe-kampus-backend-1.onrender.com/olaylar/', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();

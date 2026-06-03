@@ -22,7 +22,7 @@ export default function GuvenlikEkleScreen() {
     setYukleniyor(true);
     try {
       const token = await AsyncStorage.getItem('token'); // Admin token'ını al
-      const response = await fetch('https://safe-kampus-backend.onrender.com/users/create-security', {
+      const response = await fetch('https://safe-kampus-backend-1.onrender.com/users/create-security', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

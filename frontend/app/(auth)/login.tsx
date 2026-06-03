@@ -68,7 +68,7 @@ export default function LoginScreen() {
 
     try {
       const response = await fetch(
-        'https://safe-kampus-backend.onrender.com/auth/login',
+        'https://safe-kampus-backend-1.onrender.com/auth/login',
         {
           method: 'POST',
           headers: {
