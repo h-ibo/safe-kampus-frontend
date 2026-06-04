@@ -6,7 +6,8 @@ import {
 import { router, useLocalSearchParams } from 'expo-router';
 
 export default function SifreSifirlaScreen() {
-  const { token } = useLocalSearchParams<{ token: string }>();
+  const { email } = useLocalSearchParams<{ email: string }>();
+  const [kod, setKod] = useState('');
   const [yeniSifre, setYeniSifre] = useState('');
   const [tekrar, setTekrar] = useState('');
   const [yukleniyor, setYukleniyor] = useState(false);
@@ -14,15 +15,19 @@ export default function SifreSifirlaScreen() {
   const [hata, setHata] = useState('');
 
   const handleSifirla = async () => {
-    if (!yeniSifre || !tekrar) { setHata('Lütfen tüm alanları doldurun.'); return; }
+    if (!kod || !yeniSifre || !tekrar) { setHata('Lütfen tüm alanları doldurun.'); return; }
     if (yeniSifre !== tekrar) { setHata('Şifreler eşleşmiyor.'); return; }
     if (yeniSifre.length < 6) { setHata('Şifre en az 6 karakter olmalı.'); return; }
     setHata('');
     setYukleniyor(true);
     try {
       const response = await fetch(
-        `https://safe-kampus-backend-1.onrender.com/auth/sifre-sifirla?token=${token}&yeni_sifre=${encodeURIComponent(yeniSifre)}`,
-        { method: 'POST' }
+        'https://safe-kampus-backend-1.onrender.com/auth/sifre-sifirla',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, kod, yeni_sifre: yeniSifre }),
+        }
       );
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || 'Bir hata oluştu.');
@@ -44,8 +49,10 @@ export default function SifreSifirlaScreen() {
           <Text style={styles.icon}>🔐</Text>
         </View>
 
-        <Text style={styles.title}>Yeni Şifre</Text>
-        <Text style={styles.subtitle}>Hesabınız için yeni bir şifre belirleyin.</Text>
+        <Text style={styles.title}>Şifre Sıfırla</Text>
+        <Text style={styles.subtitle}>
+          Emailinize gelen 6 haneli kodu ve yeni şifrenizi girin.
+        </Text>
 
         {basarili ? (
           <View style={styles.successBox}>
@@ -58,7 +65,21 @@ export default function SifreSifirlaScreen() {
           </View>
         ) : (
           <View style={styles.formCard}>
-            <Text style={styles.inputLabel}>YENİ ŞİFRE</Text>
+            <Text style={styles.inputLabel}>DOĞRULAMA KODU</Text>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputIcon}>🔢</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="6 haneli kod"
+                placeholderTextColor="#4a5568"
+                value={kod}
+                onChangeText={setKod}
+                keyboardType="number-pad"
+                maxLength={6}
+              />
+            </View>
+
+            <Text style={[styles.inputLabel, { marginTop: 12 }]}>YENİ ŞİFRE</Text>
             <View style={styles.inputWrapper}>
               <Text style={styles.inputIcon}>🔒</Text>
               <TextInput

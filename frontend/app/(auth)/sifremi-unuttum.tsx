@@ -8,7 +8,6 @@ import { router } from 'expo-router';
 export default function SifremiUnuttumScreen() {
   const [email, setEmail] = useState('');
   const [yukleniyor, setYukleniyor] = useState(false);
-  const [basarili, setBasarili] = useState(false);
   const [hata, setHata] = useState('');
 
   const handleGonder = async () => {
@@ -20,7 +19,8 @@ export default function SifremiUnuttumScreen() {
         method: 'POST',
       });
       if (!response.ok) throw new Error('Bir hata oluştu.');
-      setBasarili(true);
+      // Email gönderildi, sifre-sifirla ekranına email parametresiyle yönlendir
+      router.push({ pathname: '/(auth)/sifre-sifirla', params: { email } });
     } catch (e: any) {
       setHata(e.message);
     } finally {
@@ -34,7 +34,6 @@ export default function SifremiUnuttumScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.bgCircle} />
-
       <View style={styles.content}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>← Geri</Text>
@@ -46,59 +45,46 @@ export default function SifremiUnuttumScreen() {
 
         <Text style={styles.title}>Şifremi Unuttum</Text>
         <Text style={styles.subtitle}>
-          Email adresinizi girin, şifre sıfırlama linki gönderelim.
+          Email adresinizi girin, 6 haneli doğrulama kodu gönderelim.
         </Text>
 
-        {basarili ? (
-          <View style={styles.successBox}>
-            <Text style={styles.successIcon}>✅</Text>
-            <Text style={styles.successTitle}>Email Gönderildi!</Text>
-            <Text style={styles.successText}>
-              Eğer bu email kayıtlıysa sıfırlama linki gönderildi. Lütfen emailinizi kontrol edin.
-            </Text>
-            <TouchableOpacity style={styles.loginBtn} onPress={() => router.replace('/(auth)/login')}>
-              <Text style={styles.loginBtnText}>Giriş Sayfasına Dön</Text>
-            </TouchableOpacity>
+        <View style={styles.formCard}>
+          <Text style={styles.inputLabel}>E-POSTA</Text>
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputIcon}>✉</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="ornek@universite.edu.tr"
+              placeholderTextColor="#4a5568"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
           </View>
-        ) : (
-          <View style={styles.formCard}>
-            <Text style={styles.inputLabel}>E-POSTA</Text>
-            <View style={styles.inputWrapper}>
-              <Text style={styles.inputIcon}>✉</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="ornek@universite.edu.tr"
-                placeholderTextColor="#4a5568"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
+
+          {hata ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>⚠ {hata}</Text>
             </View>
+          ) : null}
 
-            {hata ? (
-              <View style={styles.errorBox}>
-                <Text style={styles.errorText}>⚠ {hata}</Text>
-              </View>
-            ) : null}
+          <TouchableOpacity
+            style={[styles.gonderBtn, yukleniyor && styles.gonderBtnDisabled]}
+            onPress={handleGonder}
+            disabled={yukleniyor}
+            activeOpacity={0.85}
+          >
+            {yukleniyor
+              ? <ActivityIndicator color="#fff" />
+              : <Text style={styles.gonderBtnText}>DOĞRULAMA KODU GÖNDER →</Text>
+            }
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.gonderBtn, yukleniyor && styles.gonderBtnDisabled]}
-              onPress={handleGonder}
-              disabled={yukleniyor}
-              activeOpacity={0.85}
-            >
-              {yukleniyor
-                ? <ActivityIndicator color="#fff" />
-                : <Text style={styles.gonderBtnText}>SIFIRLAMA LİNKİ GÖNDER →</Text>
-              }
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => router.back()} style={styles.cancelBtn}>
-              <Text style={styles.cancelBtnText}>İptal</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          <TouchableOpacity onPress={() => router.back()} style={styles.cancelBtn}>
+            <Text style={styles.cancelBtnText}>İptal</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
@@ -126,10 +112,4 @@ const styles = StyleSheet.create({
   gonderBtnText: { color: '#fff', fontSize: 14, fontWeight: '800', letterSpacing: 1 },
   cancelBtn: { alignItems: 'center', marginTop: 16 },
   cancelBtnText: { color: '#4a5568', fontSize: 14 },
-  successBox: { backgroundColor: '#0a1f0a', borderRadius: 20, padding: 28, alignItems: 'center', borderWidth: 1, borderColor: '#276749' },
-  successIcon: { fontSize: 48, marginBottom: 16 },
-  successTitle: { color: '#68d391', fontSize: 20, fontWeight: '800', marginBottom: 8 },
-  successText: { color: '#4a5568', fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 24 },
-  loginBtn: { backgroundColor: '#1a56db', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 24, alignItems: 'center' },
-  loginBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
 });
